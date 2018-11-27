@@ -25,7 +25,7 @@
                             <p>All field has <code>*</code> is require
                             </p>
                             <span class="section"></span>
-
+                            <input type="hidden" name="id_order" id="id_order" value="-1">
                             <div class="item form-group">
                                 <label class="control-label col-md-1 col-sm-1 col-xs-12" for="last_name">Table<code>*</code>
                                 </label>
@@ -106,6 +106,60 @@
                                         </div>
                                         <div class="col-md-2 no-padding">
                                             <button onclick="add('0')" class="btn blue margin0" type="button"><i class="fa fa-plus"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- /.row -->
+                            </div>
+                            <div class="ln_solid"></div>
+                            <p><b>Pagging HTML tag</b></p>
+                            <span class="section"></span>
+                            <div class="item form-group">
+                                <label class="control-label col-md-2 col-sm-2 col-xs-12" for="last_name">Url Pagging
+                                </label>
+                                <div class="col-md-4 col-sm-4 col-xs-12">
+                                    <input name="url-paging" id="url-paging" type="text" class="form-control" placeholder='?page='>
+                                </div>
+                            </div>
+                            <div class="item form-group">
+                                <label class="control-label col-md-2 col-sm-2 col-xs-12" for="last_name">Tag Content
+                                </label>
+                                <div class="col-md-4 col-sm-4 col-xs-12">
+                                    <input name="tag_content" id="tag_content" type="text" class="form-control" placeholder='Tag Content'>
+                                </div>
+                            </div>
+                            <div class="item form-group">
+                                <label class="control-label col-md-2 col-sm-2 col-xs-12" for="last_name">Date Format
+                                </label>
+                                <div class="col-md-4 col-sm-4 col-xs-12">
+                                    <select class="form-control" name="date_format" id="date_format" style="width:100%;float:right">
+                                            <option value="-1id=">- Pilih -</option>
+                                        @foreach ($dateformat as $item)
+                                            <option value="{{$item}}">{{$item}}</option>
+                                        @endforeach
+                                            
+                                    </select>
+                                </div>
+                            </div>
+                            {{-- <div class="item form-group">
+                                <label class="control-label col-md-2 col-sm-2 col-xs-12" for="last_name">Last Page
+                                </label>
+                                <div class="col-md-1 col-sm-1 col-xs-12">
+                                    <input name="paging-count" type="text" class="form-control">
+                                </div>
+                            </div> --}}
+                            <div id="setting-html-paging-row">
+                                <div id="100">
+                                    <div class="row marginTop10">
+                                        <div class="col-md-4">
+                                            <div class="form-inline">
+                                                {!! Form::select('tags[100]', $tags, null,['class' => 'form-control'] ) !!}
+                                                <input name="htmls[100]" type="text" class="form-control" placeholder='Ex: class="news-list"'>
+                                                <input type="hidden" name="depths[]" value="0">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2 no-padding">
+                                            <button onclick="add2('100')" class="btn blue margin0" type="button"><i class="fa fa-plus"></i></button>
                                         </div>
                                     </div>
                                 </div>

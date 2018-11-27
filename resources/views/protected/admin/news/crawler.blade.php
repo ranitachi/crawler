@@ -14,25 +14,32 @@
 
                 <div class="clearfix"></div>
                 <div class="row">
-                    <div class="col-md-6">&nbsp;</div>
+                    <div class="col-md-5">&nbsp;</div>
                     <div class="col-md-3">
                         <div class="row">
                             <div class="col-md-12 text-right" style="padding-top:5px">Portal Berita</div>
                             <div class="col-md-12">
                                 <select name="portal" id="portal" class="form-control" placeholder="Portal Berita">
-                                    <option>-Pilih-</option>
+                                    <option value="-1">-Pilih-</option>
+                                    @foreach ($order as $item)
+                                        <option value="{{$item->id}}">{{$item->name}}</option>
+                                    @endforeach
                                 </select>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-1">
+                    <div class="col-md-2">
                         <div class="row">
                             <div class="col-md-12 text-right" style="padding-top:5px">Bulan</div>
                             <div class="col-md-12">
                                 <select name="bulan" id="bulan" class="form-control" placeholder="Bulan">
-                                    <option>-Pilih-</option>
+                                    <option value="-1">-Pilih-</option>
                                     @for ($i = 1; $i <= 12; $i++)
-                                        <option value="{{$i}}">{{$i}}</option>
+                                        @if (date('n')==$i)
+                                            <option value="{{$i}}" selected="selected">{{toMonth($i)}}</option>
+                                        @else
+                                            <option value="{{$i}}">{{toMonth($i)}}</option>
+                                        @endif
                                     @endfor
                                 </select>
                             </div>
@@ -43,9 +50,13 @@
                             <div class="col-md-12 text-right" style="padding-top:5px">Tahun</div>
                             <div class="col-md-12">
                                 <select name="tahun" id="tahun" class="form-control" placeholder="Tahun">
-                                    <option>-Pilih-</option>
-                                    @for ($i = (date('Y')-4); $i <= date('Y'); $i++)
-                                        <option value="{{$i}}">{{$i}}</option>
+                                    <option value="-1">-Pilih-</option>
+                                    @for ($i = (date('Y')-6); $i <= date('Y'); $i++)
+                                        @if (date('Y')==$i)
+                                            <option value="{{$i}}" selected="selected">{{$i}}</option>
+                                        @else
+                                            <option value="{{$i}}">{{$i}}</option>
+                                        @endif
                                     @endfor
                                 </select>
                             </div>
@@ -55,7 +66,7 @@
                         <div class="row">
                             <div class="col-md-12 text-right" style="padding-top:5px">&nbsp;</div>
                             
-                               <button type="button" class="btn btn-md btn-success col-md-12">
+                               <button type="button" class="btn btn-md btn-success col-md-12" onclick="loaddata()">
                                    <i class="fa fa-search"></i> Search
                                 </button>
                             
@@ -75,9 +86,6 @@
         </div>
     </div>
 
-    <br />
-    <br />
-    <br />
 
 </div>
 
@@ -85,15 +93,157 @@
 
 @section('outJS')
     <!-- Datatables -->
-    <script src="{{asset('assets/js/datatables/js/jquery.dataTables.js') }}"></script>
-    <script src="{{asset('assets/js/datatables/tools/js/dataTables.tableTools.js')}}"></script>
+    <script src="{{asset('assets/js/datatables/js-new/datatables.js') }}"></script>
+    <script src="{{asset('assets/js/datatables/js-new/jquery.highlight.js') }}"></script>
+    <script src="{{asset('assets/js/datatables/js-new/dataTables.highlight.js')}}"></script>
+    <link ref="stylesheet" href="{{asset('assets/js/datatables/js-new/datatables.css')}}">
+    <link ref="stylesheet" href="{{asset('assets/js/datatables/js-new/dataTables.highlights.css')}}">
+    {{-- <script src="{{asset('assets/js/datatables/js/jquery.dataTables.js') }}"></script>
+    <script src="{{asset('assets/js/datatables/tools/js/dataTables.tableTools.js')}}"></script> --}}
+    <script src="{{asset('assets/js/datepicker/daterangepicker.js')}}"></script>
     <script src="{{asset('assets/js/admin/news.js')}}"></script>
     <script>
         var APP_URL='{{url("/")}}';
+        loaddata();
+        
         function loaddata()
         {
-            var porta
-            $('#data').load(APP_URL + 'admin/data/'+);
+            var portal=$('#portal').val();
+            var bulan=$('#bulan').val();
+            var tahun=$('#tahun').val();
+            $('#data').load(APP_URL + '/admin/data/'+bulan+'-'+tahun+'/'+portal,function(){
+                var table=$('#news').DataTable();
+                //table.search( 'tempo' ).draw();
+                // $("#pilihsemua").click(function(){
+                //     $('input:checkbox').not(this).prop('checked', this.checked);
+                // });
+            });
+        }
+
+        function showmodal(id)
+        {
+            $('#konten-berita').text('');
+            $.ajax({
+                url : SITE_ROOT+'get-konten/'+id,
+                success : function(res){
+                    $('#konten-berita').html(res.konten);
+                    $('#url_berita').val(res.url);
+                    $('#id_berita').val(id);
+                    $('#judul').val(res.judul);
+                }
+            });
+            $('#modal-add').modal('show');
+        }
+
+        function getkabupaten(idprov)
+        {
+            $('#kab').load(APP_URL+'/kabupaten-by/'+idprov);
         }
     </script>
+@stop
+@section('modal')
+    <div class="modal fade" id="modal-add" tabindex="-1" role="dialog">
+		<div class="modal-dialog modal-lg" style="width:90% !important;">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title">Proses Berita</h4>
+				</div>
+				<div class="modal-body">
+					<form action="{{ url('admin/proses-berita') }}" method="POST" enctype="multipart/form-data">
+						<input type="hidden" name="_Token" value="{{ csrf_token() }}">
+						<div class="row">
+                            <div class="col-md-8" style="padding:0px 20px 0px 0px;">
+                                <h3>Konten Berita</h3>
+                                <div id="konten-berita" style="border:1px solid #ddd;padding:15px"></div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Kategori</label>
+                                    <select class="form-control" name="kategori" placeholder="Kategori">
+                                        <option value="-1">-Pilih-</option>
+                                        @foreach ($kategori as $item)
+                                            <option value="{{$item->id}}">{{$item->kategori}}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Provinsi</label>
+                                            <select class="form-control" name="provinsi" placeholder="Provinsi" onchange="getkabupaten(this.value)">
+                                                <option value="-1">-Pilih-</option>
+                                                @foreach ($provinsi as $item)
+                                                    <option value="{{$item->id}}">{{$item->name}}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Kabupaten</label>
+                                            <div id="kab">
+                                                <select class="form-control" name="kabupaten" placeholder="Kabupaten">
+                                                    <option value="-1">-Pilih-</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Lokasi Kejadi</label>
+                                            <input type="text" class="form-control" name="lokasi" placeholder="Lokasi">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Tanggal Kejadian</label>
+                                                <input type="date" class="form-control" name="tanggal_kejadian">
+                                            </div>
+                                        </div>
+                                    
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label>Korban Meninggal</label>
+                                            <input type="text" class="form-control" name="korban_meninggal" placeholder="Jumlah" value="0">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label>Korban Luka</label>
+                                                <input type="text" placeholder="Jumlah" class="form-control" name="korban_luka" value="0">
+                                            </div>
+                                        </div>
+                                    
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label>Bangunan Rusak</label>
+                                                <input type="text" placeholder="Jumlah" class="form-control" name="bangunan_rusak" value="0">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" name="url_berita" id="url_berita">
+                                    <input type="hidden" name="id_berita" id="id_berita">
+                                    <input type="hidden" name="judul" id="judul">
+                                </div>
+                                
+                            </div>
+                        
+						
+				</div>
+				<div class="modal-footer">
+					<button type="button" data-dismiss="modal" class="btn btn-default">Batal</button>
+					<input type="submit" class="btn btn-success" value="Simpan">
+				</div>
+				</form>
+			</div>
+		</div>
+	</div>
 @stop

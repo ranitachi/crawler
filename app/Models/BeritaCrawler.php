@@ -12,6 +12,6 @@ class BeritaCrawler extends Model
     protected $fillable=['portal_id','url','file','isi','tanggal','judul','created_at','updated_at','deleted_at'];
     function portal()
     {
-        return $this->belongsTo('App\Models\BeritaCrawler','portal_id');
+        return $this->belongsTo('App\Models\Order','portal_id');
     }
 }

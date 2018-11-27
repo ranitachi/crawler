@@ -10,6 +10,7 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\Setting;
 use App\Models\BeritaCrawler;
+use App\Models\PagingSetting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
@@ -20,6 +21,7 @@ use Yangqi\Htmldom\Htmldom;
 use Scrapper;
 use Goutte\Client;
 use GuzzleHttp\Client as GuzzleClient;
+use Sunra\PhpSimple\HtmlDomParser;
 /**
  * Class CrawlToolController
  * @package App\Http\Controllers\Admin
@@ -35,7 +37,8 @@ class CrawlToolController extends Controller
         $tables = $this->getTables();
         $settings = $this->getSetting();
         $tags = Common::$TAGS;
-        return view('protected.admin.tool.create', compact('tables', 'settings', 'tags'));
+        $dateformat=array('yyyy-mm-dd','yyyy/mm/dd','dd/mm/yyyy','dd-mm-yyyy','mm-dd-yyyy','mm/dd/yyyy');
+        return view('protected.admin.tool.create', compact('tables', 'settings', 'tags','dateformat'));
     }
 
     /**
@@ -104,6 +107,8 @@ class CrawlToolController extends Controller
      * @param Request $request
      */
     public function store(Request $request) {
+        // dd($request->all());
+        $id_order=$request->id_order;
         $table = $request->tables;
         $url = $request->url;
         $tags = $request->tags;
@@ -117,35 +122,73 @@ class CrawlToolController extends Controller
         $tgl=$request->tanggal;
         $bln=$request->bulan;
         $thn=$request->tahun;
-        $date=date('Y-m-d',strtotime($thn.'-'.$bln.'-'.$tgl));
+        
+        if(strpos($url,'jpnn')!==false)
+        {
+            $date='&d='.$tgl.'&m='.$bln.'&y='.$thn;
+        }
+        else
+        {
+            $df=str_replace('yyyy','Y',$request->date_format);
+            $df=str_replace('mm','m',$df);
+            $df=str_replace('dd','d',$df);
+            $date=date($df,strtotime($thn.'-'.$bln.'-'.$tgl));
+        }
         // echo $date;
         
         $link=$url.$date;
         // echo $link;
-        $tag_parent=$tag_child='';
+        $tag_parent=$tag_child=$tag_paging='';
+
+        // dd('-');
         foreach($tags as $k=>$tag)
         {
-            if(strpos($htmls[$k],'class')!==false)
+            if($k!=100)
             {
-                $sep='.';
-                $sep2=str_replace('class="','.',$htmls[$k]);
-                $sep2=str_replace('"','',$sep2);
-                $sep2=str_replace(' ','.',$sep2);
-            }
-            elseif(strpos($htmls[$k],'id')!==false)
-            {
-                $sep='#';
-                $sep2=str_replace('id="','#',$htmls[$k]);
-                $sep2=str_replace('"','',$sep2);
-                $sep2=str_replace(' ','.',$sep2);
-            }
-            else
-                $sep=$sep2='';
+
+                if(strpos($htmls[$k],'class')!==false)
+                {
+                    $sep='.';
+                    $sep2=str_replace('class="','.',$htmls[$k]);
+                    $sep2=str_replace('"','',$sep2);
+                    $sep2=str_replace(' ','.',$sep2);
+                }
+                elseif(strpos($htmls[$k],'id')!==false)
+                {
+                    $sep='#';
+                    $sep2=str_replace('id="','#',$htmls[$k]);
+                    $sep2=str_replace('"','',$sep2);
+                    $sep2=str_replace(' ','.',$sep2);
+                }
+                else
+                    $sep=$sep2='';
 
             // echo $k.'-';
             // if($k=='0')
             // {
                 $tag_parent.=$tag.$sep2.' > ';
+            }
+            else
+            {
+                if(strpos($htmls[$k],'class')!==false)
+                {
+                    $sep='.';
+                    $sep2=str_replace('class="','.',$htmls[$k]);
+                    $sep2=str_replace('"','',$sep2);
+                    $sep2=str_replace(' ','.',$sep2);
+                }
+                elseif(strpos($htmls[$k],'id')!==false)
+                {
+                    $sep='#';
+                    $sep2=str_replace('id="','#',$htmls[$k]);
+                    $sep2=str_replace('"','',$sep2);
+                    $sep2=str_replace(' ','.',$sep2);
+                }
+                else
+                    $sep=$sep2='';
+
+                $tag_paging.=$tag.$sep2. ' > ';
+            }
             // }
             // else
             // {
@@ -160,84 +203,199 @@ class CrawlToolController extends Controller
             // }
         }
         $tag_parent=substr($tag_parent,0,-2);
+        $tag_paging=substr($tag_paging,0,-2);
+        $page_url=$request->input('url-paging');
         // echo $tag_parent;
         // echo '<br>'.$tag_child;
-        // dd($request->all());
-        // $crawler = Scrapper::request('GET', 'https://indeks.kompas.com/news/2015-01-01');
-        // $url = $crawler->filter('div.article__list')->each(function($node) {
-        $crawler = Scrapper::request('GET', $link);
-        $response = Scrapper::getResponse();
-        // echo $response->getStatus();
-        
-        if($response->getStatus()==200)
+        // echo '<br>'.$tag_paging;
+        // $link='http://www.tribunnews.com/index-news?date=2015-01-02';
+        // echo '<br>'.$link;
+        // dd('-');
+        if(strpos($link,'jpnn')!==false)
         {
-            $data = $crawler->filter($tag_parent)->each(function($node) use ($request) {
+            $client = new Client();
+            $crawler_b = $client->request('GET', $link);
+            $response_b = $client->getResponse();
+            $isi = $response_b->getContent();
+            $ee=HtmlDomParser::str_get_html($isi);
+            $ff=$ee->find($tag_parent);
+            
+            $data=$dd=$this->getjpnn(90,$tgl,$bln,$thn);
+            // dd($dd);
 
-                $title = $node->extract(array('_text','href','title'));
-    
-                echo '<pre>';
-                var_dump($title);
-                echo '</pre>';
-                // $title = $node->filter('div.article__list__title h3  a')->extract(array('_text', 'href'));
-                /*$title = $node->filter($tag_child)->extract(array('_text', 'href'));
-                if(count($title)!=0)
-                {
-                // trim(preg_replace('/\t+/', '', $string));
-                // dd($title);
-                    $data['judul']=$judul=trim(preg_replace('/\t+/', '',$title[0][0]));
-                    $data['link_berita']=$link_berita=$title[0][1];
-                    
-                    $cek=BeritaCrawler::where('url',$link_berita)->first();
-                    if(is_null($cek))
-                    {
-                        // $isi=file_get_contents($link_berita);
-                        $client = new Client();
-                        $crawler_b = $client->request('GET', $link_berita);
-                        $response_b = $client->getResponse();
-                        $code=$response_b->getStatus();
-                        
-                        $isi = $response_b->getContent();
-                        // $isi=$body
-                        if($code==200)
-                        {
-                            $insert=new BeritaCrawler;
-                            $insert->portal_id=$request->setting;
-                            $insert->url=$link_berita;
-                            $insert->file='';
-                            $insert->isi=$isi;
-                            $insert->tanggal=($request->tahun.'-'.$request->bulan.'-'.$request->tanggal);
-                            $insert->judul=$judul;
-                            $insert->save();
-                        }
-                    }
-                // echo $request->setting;
-                // echo $link_berita;
-                // echo '<hr>';
-                }*/
+            $data=array();
+            $idx=0;
+            foreach($dd['judul'] as $k=>$v)
+            {
+                $data['judul'][$idx]=$v;
+                $data['link_berita'][$idx]=$dd['link_berita'][$k];
+                $idx++;
+            }
+            foreach($ff as $e=>$f)
+            {
+                $data['judul'][$idx]=$f->title;
+                $data['link_berita'][$idx]=$f->href;
+                // echo $f->href.'<br>'.$f->title;
+                // echo '<br>';
+                $idx++;
+            }
+            // dd($data);
+            foreach($data['link_berita'] as $kd=>$vd)
+            {
 
+                $isi = $this->get_isi($vd,$id_order);
+                // dd($isi);
+                // $isi=$body
+                $judul = $data['judul'][$kd];
+                $link_berita = $vd;
+
+                $insert=new BeritaCrawler;
+                $insert->portal_id=$request->setting;
+                $insert->url=$link_berita;
+                $insert->file='';
+                $insert->isi=$isi;
+                $insert->tanggal=($request->tahun.'-'.$request->bulan.'-'.$request->tanggal);
+                $insert->judul=$judul;
+                $insert->save();
                 
-            });
-            $pesan='Crawler Telah Di Lakukan';
+            }
         }
         else
         {
-            echo 'Fail Connect To Server';
-            $pesan='Fail Connect To Server';
+            $data_crawler=array();
+            
+            $crawler = Scrapper::request('GET', $link);
+            $response = Scrapper::getResponse();
+            
+                if($response->getStatus()==200)
+                {
+                    // dd($crawler);
+                    // echo $link.$page_url.'<br>';
+                    $page_url=$link.$page_url;
+                    $data_craw = $crawler->filter($tag_paging)->each(function($node) use ($request,&$x,&$y) {
+                        $title = $node->extract(array('_text','href','title'));
+                        $x=$title[0][1];
+                        $y[]=$title[0][1];
+                        // echo '<pre>';
+                        // print_r($title);
+                        // echo '</pre>';
+                    });
+                    
+                    if(strpos($page_url,'detik.com')!==false)
+                    {
+                        // $jlh_page=str_replace($page_url,' ',$x);
+                        $ln=$y[count($y)-2];
+                        $bef=strtok($ln,'?');
+                        $bf=explode('/',$bef);
+                        $jlh_page=$bf[count($bf)-1];
+                        // echo $ln;
+                        // dd($jlh_page);
+
+                    }
+                    elseif(strpos($page_url,'jpnn')!==false || strpos($page_url,'tempo')!==false || strpos($page_url,'metrotvnews')!==false)
+                    {
+                        $jlh_page=1;
+                    }
+                    else
+                    {
+
+                        $jlh_page=str_replace($page_url,' ',$x);
+                        // echo '<br>'.$page_url.'<br>'.$jlh_page;        
+                    }
+                    
+                    for($ix=1;$ix<=$jlh_page;$ix++)
+                    {   
+                        // echo $ix;
+                        if(strpos($page_url,'detik.com')!==false)
+                        {
+                            $cc=substr($page_url,0,-1);
+                            echo str_replace('?',('/'.$ix.'?'),$cc).'<br>';
+                            $link_detik=str_replace('?',('/'.$ix.'?'),$cc);
+                            $crawler_page = Scrapper::request('GET', $link_detik);
+                        }
+                        elseif(strpos($page_url,'jpnn')!==false || strpos($page_url,'tempo')!==false || strpos($page_url,'metrotvnews')!==false)
+                        {
+                            // echo $link;
+                            $crawler_page = Scrapper::request('GET', $link);
+                        }
+                        else
+                        {
+                            // echo $page_url.$ix.'<br>';
+                            $crawler_page = Scrapper::request('GET', $page_url.$ix);
+                        }
+                        echo $tag_parent;
+                        $data_craw = $crawler_page->filter($tag_parent)->each(function($node) use ($request,$page_url) {
+                            $title = $node->extract(array('_text','href','title'));
+                            
+
+                            if(strpos($page_url,'tempo')!==false)
+                            {
+                                // $title_=$node->filter('h2.title')->extract(array('_text','href','title'))?;
+                                // print_r($title_);
+                                $node->filter('h2.title')->each(function ($nd) use (&$title_) {
+                                    $title_= $nd->text();
+                                });
+                                $data['judul2']=$judul2=trim(preg_replace('/\t+/', '',$title_));
+                                $data['judul']=$judul=trim(preg_replace('/\t+/', '',$title[0][0]));
+                                $data['link_berita']=$link_berita=$title[0][1];
+                            }
+                            else
+                            {
+                                $data['judul2']=$judul2=trim(preg_replace('/\t+/', '',$title[0][2]));
+                                $data['judul']=$judul=trim(preg_replace('/\t+/', '',$title[0][0]));
+                                $data['link_berita']=$link_berita=$title[0][1];
+                            }
+                            
+                            
+                            $cek=BeritaCrawler::where('url',$link_berita)->first();
+                            if(is_null($cek))
+                            {
+                                // $isi=file_get_contents($link_berita);
+                                // if($judul2!='')
+                                // {
+                                    $client = new Client();
+                                    $crawler_b = $client->request('GET', $link_berita);
+                                    $response_b = $client->getResponse();
+                                    $code=$response_b->getStatus();
+                                    
+                                    $isi = $response_b->getContent();
+                                    // $isi=$body
+                                    if($code==200)
+                                    {
+                                        $insert=new BeritaCrawler;
+                                        $insert->portal_id=$request->setting;
+                                        $insert->url=$link_berita;
+                                        $insert->file='';
+                                        $insert->isi=$isi;
+                                        $insert->tanggal=($request->tahun.'-'.$request->bulan.'-'.$request->tanggal);
+                                        if(strpos($page_url,'jpnn')!==false || strpos($page_url,'tempo')!==false)
+                                        {
+                                            $insert->judul=$judul2;
+                                        }
+                                        else
+                                        {
+                                            $insert->judul=$judul;
+                                        }
+                                        $insert->save();
+                                    }
+                                // }
+                            }
+                            // echo '<pre>';
+                            // print_r($data);
+                            // echo '</pre>';
+                            
+                        });
+                    }
+                
+                }
+                $pesan='Crawler Telah Di Lakukan';  
+            // }
         }
-        // $vd=BeritaCrawler::where('portal_id',$setting)->where('tanggal',($request->tahun.'-'.$request->bulan.'-'.$request->tanggal))->get();
-        // echo $vd->count();
-        // Start clone content
-        // $page = new Htmldom($url);
+        // dd('-');
 
-        // foreach($arrDepths as $depth) {
-        //     $data = $this->lastValue($data, $page, $depth, $tags, $htmls, $types, $hid_fields, 0);
-        // }
-
-        // Session::put('dataSave', $data);
-        // Session::put('table', $table);
-        // $keys = array_keys($data);
-        // $viewData = $this->convertData($data);
-        /*$no=0;
+        $vd=BeritaCrawler::where('portal_id',$setting)->where('tanggal',($request->tahun.'-'.$request->bulan.'-'.$request->tanggal))->get();
+       
+        $no=0;
         $data=array();
         foreach($vd as $k=>$v)
         {
@@ -247,8 +405,61 @@ class CrawlToolController extends Controller
         }
         $keys=['Judul','Link'];
         
-        return Redirect::to('admin/tool')->with(['success' => trans('message.SUCCESS'), 'viewData' => $data, 'keys' => $keys]);*/
+        return Redirect::to('admin/tool')->with(['success' => trans('message.SUCCESS'), 'viewData' => $data, 'keys' => $keys]);
         // return Redirect::to('admin/tool')->with(['success' => trans('message.SUCCESS'), 'viewData' => $viewData]);
+    }
+
+    public function get_isi($link,$order_id)
+    {
+        $order=Order::find($order_id);
+        $div_conten=$order->tag_body;
+
+        $client = new Client();
+        $crawler_b = $client->request('GET', $link);
+        $response_b = $client->getResponse();
+        $code=$response_b->getStatus();
+        $isi = $response_b->getContent();
+
+        $dom = HtmlDomParser::str_get_html($isi);
+        $konten = $dom->find($div_conten,0);
+
+        return $konten;
+    }
+
+    public function getjpnn($offset,$tgl,$bln,$thn)
+    {
+        $i=$offset/10;
+
+        $client = new Client();
+        $crawler = $client->request('GET', 'https://www.jpnn.com/indeks?id=&d=10&m=11&y=2016&tab=all');
+        $data=array();
+        for($j=1;$j<=$i;$j++)
+        {
+            $html = '<form action="https://www.jpnn.com/ajax/loadmore_indeks" method="POST">';
+            $html .='<input type="hidden" name="offset">';
+            $html .='<input type="hidden" name="tab">';
+            $html .='<input type="hidden" name="d">';
+            $html .='<input type="hidden" name="m">';
+            $html .='<input type="hidden" name="y">';
+            $html .='<input type="submit" name="load" id="load">';
+            $html .='</form>';
+            $crawler->add($html);
+            $form = $crawler->selectButton('load')->form();
+            $craw = $client->submit($form, array('offset' => ($j*10), 'tab' => 'all','d'=>$tgl,'m'=>$bln,'y'=>$thn));
+            $html_craw= $craw->html();
+            $crawler_new = $client->request('GET', $html_craw);
+            $dom = HtmlDomParser::str_get_html($html_craw);
+            $d=$dom->find('li > a');
+            foreach($d as $k => $v)
+            {
+                // $title=$v->str_get();
+                // echo $v->href.'<br>'.$v->title.'<br>';
+                // echo '--------------------------<br>';
+                $data['judul'][]=$v->title;
+                $data['link_berita'][]=$v->href;
+            }
+        }
+        return $data;
     }
 
     /**
@@ -256,11 +467,7 @@ class CrawlToolController extends Controller
      * @return array|int
      */
 
-    public function data($date,$portal_id)
-    {
-        $data=BeritaCrawler::where('portal_id',$portal_id)->where('tanggal','like',"%$date")->get();
-        return view('protected.admin.tool.data', compact('portal_id', 'date', 'data'));
-    }
+    
 
     public function convertData($datas) {
         $keys = array_keys($datas);
@@ -397,8 +604,19 @@ class CrawlToolController extends Controller
     /**
      * @param Request $request
      */
+    // public function updateSetting($id) {
+    //     $req=Session::get('request');
+    //     dd($req);
+    // }
+    
     public function saveSetting(Request $request) {
+
+        // 
+        // $idorder=$request->id_order;
+        
+
         $data = $request->data;
+        $idorder=$data['id_order'];
         $table = $data['tables'];
         $url = $data['url'];
         $sName = $data['sName'];
@@ -446,26 +664,75 @@ class CrawlToolController extends Controller
                     break;
             }
         }
-
+        // echo $idorder.'-';
+        // dd($idorder);
+        // foreach($tags as $key => $tag) {
+        //     if($key==100)
+        //     {
+        //         echo 'Paging :'.$key.'=>'.$tag.'<br>';
+        //     }
+        //     else
+        //     {
+        //         echo 'Tag :'.$key.'=>'.$tag.'<br>';
+        //     }
+        // }
+        // dd($tags);
         //save data into table order
-        $order = new Order();
-        $order->table = $table;
-        $order->url = $url;
-        $order->name = $sName;
-        $order->save();
+        
+        if($idorder!=-1)
+        {
+            $order = Order::find($idorder);
+            $order->table = $table;
+            $order->url = $url;
+            $order->url_paging = $data['url-paging'];
+            $order->date_format = $data['date_format'];
+            $order->tag_body = $data['tag_content'];
+            $order->name = $sName;
+            $order->save();
+
+            PagingSetting::where('order_id',$idorder)->forceDelete();
+            Setting::where('order_id',$idorder)->forceDelete();
+        }
+        else
+        {
+            $order = new Order();
+            $order->table = $table;
+            $order->url = $url;
+            $order->url_paging = $data['url-paging'];
+            $order->date_format = $data['date_format'];
+            $order->tag_body = $data['tag_content'];
+            $order->name = $sName;
+            $order->save();
+        }
+
 
         //save data into table settings
         $isSave = false;
         foreach($tags as $key => $tag) {
-            $setting = new Setting();
-            $setting->order_id = $order->id;
-            $setting->parent_id = $this->getParentID($key);
-            $setting->tag = $tag;
-            $setting->name = $key;
-            $setting->html = isset($htmls[$key]) ? $htmls[$key] : '';
-            $setting->type = isset($types[$key]) ? $types[$key] : 0;
-            $setting->field = isset($hid_fields[$key]) ? $hid_fields[$key] : '';
-            $isSave = $setting->save();
+            if($key==100)
+            {
+                // echo 'Paging :'.$key.'=>'.$tag.'<br>';
+                $page_setting=new PagingSetting;
+                $page_setting->order_id=$order->id;
+                $page_setting->tag=$tag;
+                $page_setting->name=$key;
+                $page_setting->html=isset($htmls[$key]) ? $htmls[$key] : '';
+                $page_setting->count_of_page=0;
+                $isSave=$page_setting->save();
+            }
+            else
+            {
+                $setting = new Setting();
+                $setting->order_id = $order->id;
+                $setting->parent_id = $this->getParentID($key);
+                $setting->tag = $tag;
+                $setting->name = $key;
+                $setting->html = isset($htmls[$key]) ? $htmls[$key] : '';
+                $setting->type = isset($types[$key]) ? $types[$key] : 0;
+                $setting->field = isset($hid_fields[$key]) ? $hid_fields[$key] : '';
+                $isSave = $setting->save();
+            }
+            
         }
 
         return Response::json($isSave);
@@ -500,6 +767,16 @@ class CrawlToolController extends Controller
             'setting' => $settings
         ]);
     }
+    
+    public function loadSettingPaging(Request $request) {
+        $order_id = $request->order;
+        $order = Order::find($order_id);
+        $settings = $order->pagingsetting;
+        return Response::json([
+            'order' => $order,
+            'setting' => $settings
+        ]);
+    }
 
     /**
      * @param Request $request
@@ -508,6 +785,15 @@ class CrawlToolController extends Controller
     public function loadSettingItem(Request $request) {
         $id = $request->id;
         $setting = Setting::find($id);
+        $arrElm = explode('_', $setting->name);
+        $margin = count($arrElm);
+        $tags = Common::$TAGS;
+        $types = Common::$TYPES;
+        return view('protected.admin.tool.form-load-setting', compact('setting', 'margin', 'tags', 'types'));
+    }
+    public function loadPagingSettingItem(Request $request) {
+        $id = $request->id;
+        $setting = PagingSetting::find($id);
         $arrElm = explode('_', $setting->name);
         $margin = count($arrElm);
         $tags = Common::$TAGS;

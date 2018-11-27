@@ -9,4 +9,5 @@
 
 @include('protected.admin.includes.foot')
 @yield('outJS')
+@yield('modal')
 

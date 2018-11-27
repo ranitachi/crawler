@@ -38,8 +38,14 @@
                                         </li>
                                     </ul>
                                 </li>
+                                <li><a><i class="fa fa-cog"></i> Tool <span class="fa fa-chevron-down"></span></a>
+                                    <ul class="nav child_menu" style="display: none">
+                                        <li><a href="{{ URL::to('admin/tool') }}">Crawl tool</a></li>
+                                        <li><a href="{{ URL::to('admin/kategori') }}">Kategori</a></li>
+                                    </ul>
+                                </li>
 
-                                <li><a href="{{ URL::to('admin/tool') }}"><i class="fa fa-cog"></i> Crawl tool <span class="fa fa-chevron-down"></span></a></li>
+                                
                             </ul>
                         </div>
                     </div>

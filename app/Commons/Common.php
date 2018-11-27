@@ -37,6 +37,7 @@ class Common {
         'td' => 'td',
         'th' => 'th',
         'strong' => 'strong',
+        'article' => 'article',
     ];
 
     public static $TYPES = [

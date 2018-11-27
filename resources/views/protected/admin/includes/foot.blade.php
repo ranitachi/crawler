@@ -42,6 +42,7 @@
     </script>
     <script type="text/javascript">
         var SITE_ROOT = "{{url().'/admin/'}}";
+        var APP_URL = "{{url('/')}}";
     </script>
 </body>
 </html>

@@ -54,6 +54,27 @@ function add(id) { // format id : number_number
 }
 
 /*
+* add new element
+* */
+function add2(id) { // format id : number_number
+    var tmp_id = genarateId(id, 1);
+    var setting = $('#setting-html-paging-row');
+    $.ajax({
+        type : 'POST',
+        data: {
+          'id' : tmp_id
+        },
+        url : SITE_ROOT + 'add-form-setting',
+        success : function(data) {
+            var firstChild = $('#' + id).children().first();
+            $(data).insertAfter($(firstChild));
+        }
+    }).done(function() {
+        orderID(id);
+    });
+}
+
+/*
 * genarate id
 * auto generate id, if id is exist, back ro generate
 * */
@@ -192,9 +213,11 @@ function checkDuplicate(val) {
 * */
 $('#select-setting').on('change', function() {
     $('#setting-html-row').html('');
+    $('#setting-html-pagin-row').html('');
     // alert('q');
     $('#btn-save-setting').prop('disabled', false);
     var value = $(this).val();
+    $('#id_order').val(value);
     var setting = $.ajax({
         type : 'POST',
         data: {
@@ -206,6 +229,10 @@ $('#select-setting').on('change', function() {
 
     setting.done(function(data) {
         $('#selectTable').val(data.order.table);
+        $('#url').val(data.order.url);
+        $('#date_format').val(data.order.date_format);
+        $('#url-paging').val(data.order.url_paging);
+        $('#tag_content').val(data.order.tag_body);
         $('#url').val(data.order.url);
         $('#setting-name').val(data.order.name);
         tableChange();
@@ -227,6 +254,42 @@ $('#select-setting').on('change', function() {
                     $('#' + parent).append(value);
                 } else {
                     $('#setting-html-row').html(value);
+                }
+            });
+        });
+    });
+
+    var setting_paging = $.ajax({
+        type: 'POST',
+        data: {
+            'order': value
+        },
+        url: SITE_ROOT + 'load-setting-paging',
+        async: false,
+    });
+    setting_paging.done(function (data) {
+        // $('#selectTable').val(data.order.table);
+        // $('#url').val(data.order.url);
+        // $('#setting-name').val(data.order.name);
+        // tableChange();
+
+        $.each(data.setting, function () {
+            //load item
+            var parent = findParent(this.name);
+            var item = $.ajax({
+                type: 'POST',
+                data: {
+                    'id': this.id
+                },
+                url: SITE_ROOT + 'load-paging-setting-item',
+                async: false,
+            });
+
+            item.done(function (value) {
+                if (parent != '') {
+                    $('#' + parent).append(value);
+                } else {
+                    $('#setting-html-paging-row').html(value);
                 }
             });
         });

@@ -19,4 +19,8 @@ class Order extends Model {
     public function setting() {
         return $this->hasMany(Setting::class, 'order_id');
     }
+    
+    public function pagingsetting() {
+        return $this->hasMany(PagingSetting::class, 'order_id');
+    }
 }
