@@ -91,7 +91,7 @@ class NewsController extends Controller
 
     public function proses_berita(Request $request)
     {
-        dd($request->all());
+        // dd($request->all());
         $insert=new BeritaResult;
         $insert->id_berita = $request->id_berita;
         $insert->kategori = $request->kategori;
@@ -105,5 +105,6 @@ class NewsController extends Controller
         $insert->url_berita = $request->url_berita;
         $insert->judul = $request->judul;
         $insert->save();
+        return redirect('admin/news')->with('cari','');
     }
 }
