@@ -119,293 +119,174 @@ class CrawlToolController extends Controller
         $setting = $request->setting;
         $data = array();
         $arrDepths = $this->divDepth($depths);
-        $tgl=$request->tanggal;
-        $bln=$request->bulan;
-        $thn=$request->tahun;
+        $time['tgl']=$tgl=$request->tanggal;
+        $time['bln']=$bln=$request->bulan;
+        $time['thn']=$thn=$request->tahun;
         
-        if(strpos($url,'jpnn')!==false)
+
+        if($tgl==0)
         {
-            $date='&d='.$tgl.'&m='.$bln.'&y='.$thn;
+            $jlhhari=jumlahhari($bln,$thn);
+            for($h=1;$h<=$jlhhari;$h++)
+            {
+
+            }
         }
         else
         {
-            $df=str_replace('yyyy','Y',$request->date_format);
-            $df=str_replace('mm','m',$df);
-            $df=str_replace('dd','d',$df);
-            $date=date($df,strtotime($thn.'-'.$bln.'-'.$tgl));
-        }
-        // echo $date;
-        
-        $link=$url.$date;
-        // echo $link;
-        $tag_parent=$tag_child=$tag_paging='';
-
-        // dd('-');
-        foreach($tags as $k=>$tag)
-        {
-            if($k!=100)
+            if(strpos($url,'jpnn')!==false)
             {
-
-                if(strpos($htmls[$k],'class')!==false)
-                {
-                    $sep='.';
-                    $sep2=str_replace('class="','.',$htmls[$k]);
-                    $sep2=str_replace('"','',$sep2);
-                    $sep2=str_replace(' ','.',$sep2);
-                }
-                elseif(strpos($htmls[$k],'id')!==false)
-                {
-                    $sep='#';
-                    $sep2=str_replace('id="','#',$htmls[$k]);
-                    $sep2=str_replace('"','',$sep2);
-                    $sep2=str_replace(' ','.',$sep2);
-                }
-                else
-                    $sep=$sep2='';
-
-            // echo $k.'-';
-            // if($k=='0')
-            // {
-                $tag_parent.=$tag.$sep2.' > ';
+                $date='&d='.$tgl.'&m='.$bln.'&y='.$thn;
             }
             else
             {
-                if(strpos($htmls[$k],'class')!==false)
-                {
-                    $sep='.';
-                    $sep2=str_replace('class="','.',$htmls[$k]);
-                    $sep2=str_replace('"','',$sep2);
-                    $sep2=str_replace(' ','.',$sep2);
-                }
-                elseif(strpos($htmls[$k],'id')!==false)
-                {
-                    $sep='#';
-                    $sep2=str_replace('id="','#',$htmls[$k]);
-                    $sep2=str_replace('"','',$sep2);
-                    $sep2=str_replace(' ','.',$sep2);
-                }
-                else
-                    $sep=$sep2='';
-
-                $tag_paging.=$tag.$sep2. ' > ';
+                $df=str_replace('yyyy','Y',$request->date_format);
+                $df=str_replace('mm','m',$df);
+                $df=str_replace('dd','d',$df);
+                $date=date($df,strtotime($thn.'-'.$bln.'-'.$tgl));
             }
-            // }
-            // else
-            // {
-            //     if($htmls[$k]!='')
-            //     {
-            //         $tag_child.=$tag.$sep2.' ';
-            //     }
-            //     else
-            //     {
-            //         $tag_child.=$tag.' ';
-            //     }
-            // }
-        }
-        $tag_parent=substr($tag_parent,0,-2);
-        $tag_paging=substr($tag_paging,0,-2);
-        $page_url=$request->input('url-paging');
-        // echo $tag_parent;
-        // echo '<br>'.$tag_child;
-        // echo '<br>'.$tag_paging;
-        // $link='http://www.tribunnews.com/index-news?date=2015-01-02';
-        // echo '<br>'.$link;
-        // dd('-');
-        if(strpos($link,'jpnn')!==false)
-        {
-            $client = new Client();
-            $crawler_b = $client->request('GET', $link);
-            $response_b = $client->getResponse();
-            $isi = $response_b->getContent();
-            $ee=HtmlDomParser::str_get_html($isi);
-            $ff=$ee->find($tag_parent);
-            
-            $data=$dd=$this->getjpnn(90,$tgl,$bln,$thn);
-            // dd($dd);
-
-            $data=array();
-            $idx=0;
-            foreach($dd['judul'] as $k=>$v)
+            $link=$url.$date;
+            $tag_parent=$tag_child=$tag_paging='';
+            foreach($tags as $k=>$tag)
             {
-                $data['judul'][$idx]=$v;
-                $data['link_berita'][$idx]=$dd['link_berita'][$k];
-                $idx++;
-            }
-            foreach($ff as $e=>$f)
-            {
-                $data['judul'][$idx]=$f->title;
-                $data['link_berita'][$idx]=$f->href;
-                // echo $f->href.'<br>'.$f->title;
-                // echo '<br>';
-                $idx++;
-            }
-            // dd($data);
-            foreach($data['link_berita'] as $kd=>$vd)
-            {
-
-                $isi = $this->get_isi($vd,$id_order);
-                // dd($isi);
-                // $isi=$body
-                $judul = $data['judul'][$kd];
-                $link_berita = $vd;
-
-                $insert=new BeritaCrawler;
-                $insert->portal_id=$request->setting;
-                $insert->url=$link_berita;
-                $insert->file='';
-                $insert->isi=$isi;
-                $insert->tanggal=($request->tahun.'-'.$request->bulan.'-'.$request->tanggal);
-                $insert->judul=$judul;
-                $insert->save();
-                
-            }
-        }
-        else
-        {
-            $data_crawler=array();
-            
-            $crawler = Scrapper::request('GET', $link);
-            $response = Scrapper::getResponse();
-            
-                if($response->getStatus()==200)
+                if($k!=100)
                 {
-                    // dd($crawler);
-                    // echo $link.$page_url.'<br>';
-                    $page_url=$link.$page_url;
-                    $data_craw = $crawler->filter($tag_paging)->each(function($node) use ($request,&$x,&$y) {
-                        $title = $node->extract(array('_text','href','title'));
-                        $x=$title[0][1];
-                        $y[]=$title[0][1];
-                        // echo '<pre>';
-                        // print_r($title);
-                        // echo '</pre>';
-                    });
-                    
-                    if(strpos($page_url,'detik.com')!==false)
+
+                    if(strpos($htmls[$k],'class')!==false)
                     {
-                        // $jlh_page=str_replace($page_url,' ',$x);
-                        $ln=$y[count($y)-2];
-                        $bef=strtok($ln,'?');
-                        $bf=explode('/',$bef);
-                        $jlh_page=$bf[count($bf)-1];
-                        // echo $ln;
-                        // dd($jlh_page);
-
+                        $sep='.';
+                        $sep2=str_replace('class="','.',$htmls[$k]);
+                        $sep2=str_replace('"','',$sep2);
+                        $sep2=str_replace(' ','.',$sep2);
                     }
-                    elseif(strpos($page_url,'jpnn')!==false || strpos($page_url,'tempo')!==false || strpos($page_url,'metrotvnews')!==false)
+                    elseif(strpos($htmls[$k],'id')!==false)
                     {
-                        $jlh_page=1;
+                        $sep='#';
+                        $sep2=str_replace('id="','#',$htmls[$k]);
+                        $sep2=str_replace('"','',$sep2);
+                        $sep2=str_replace(' ','.',$sep2);
                     }
                     else
-                    {
+                        $sep=$sep2='';
 
-                        $jlh_page=str_replace($page_url,' ',$x);
-                        // echo '<br>'.$page_url.'<br>'.$jlh_page;        
-                    }
-                    
-                    for($ix=1;$ix<=$jlh_page;$ix++)
-                    {   
-                        // echo $ix;
-                        if(strpos($page_url,'detik.com')!==false)
-                        {
-                            $cc=substr($page_url,0,-1);
-                            echo str_replace('?',('/'.$ix.'?'),$cc).'<br>';
-                            $link_detik=str_replace('?',('/'.$ix.'?'),$cc);
-                            $crawler_page = Scrapper::request('GET', $link_detik);
-                        }
-                        elseif(strpos($page_url,'jpnn')!==false || strpos($page_url,'tempo')!==false || strpos($page_url,'metrotvnews')!==false)
-                        {
-                            // echo $link;
-                            $crawler_page = Scrapper::request('GET', $link);
-                        }
-                        else
-                        {
-                            // echo $page_url.$ix.'<br>';
-                            $crawler_page = Scrapper::request('GET', $page_url.$ix);
-                        }
-                        echo $tag_parent;
-                        $data_craw = $crawler_page->filter($tag_parent)->each(function($node) use ($request,$page_url) {
-                            $title = $node->extract(array('_text','href','title'));
-                            
-
-                            if(strpos($page_url,'tempo')!==false)
-                            {
-                                // $title_=$node->filter('h2.title')->extract(array('_text','href','title'))?;
-                                // print_r($title_);
-                                $node->filter('h2.title')->each(function ($nd) use (&$title_) {
-                                    $title_= $nd->text();
-                                });
-                                $data['judul2']=$judul2=trim(preg_replace('/\t+/', '',$title_));
-                                $data['judul']=$judul=trim(preg_replace('/\t+/', '',$title[0][0]));
-                                $data['link_berita']=$link_berita=$title[0][1];
-                            }
-                            else
-                            {
-                                $data['judul2']=$judul2=trim(preg_replace('/\t+/', '',$title[0][2]));
-                                $data['judul']=$judul=trim(preg_replace('/\t+/', '',$title[0][0]));
-                                $data['link_berita']=$link_berita=$title[0][1];
-                            }
-                            
-                            
-                            $cek=BeritaCrawler::where('url',$link_berita)->first();
-                            if(is_null($cek))
-                            {
-                                // $isi=file_get_contents($link_berita);
-                                // if($judul2!='')
-                                // {
-                                    $client = new Client();
-                                    $crawler_b = $client->request('GET', $link_berita);
-                                    $response_b = $client->getResponse();
-                                    $code=$response_b->getStatus();
-                                    
-                                    $isi = $response_b->getContent();
-                                    // $isi=$body
-                                    if($code==200)
-                                    {
-                                        $insert=new BeritaCrawler;
-                                        $insert->portal_id=$request->setting;
-                                        $insert->url=$link_berita;
-                                        $insert->file='';
-                                        $insert->isi=$isi;
-                                        $insert->tanggal=($request->tahun.'-'.$request->bulan.'-'.$request->tanggal);
-                                        if(strpos($page_url,'jpnn')!==false || strpos($page_url,'tempo')!==false)
-                                        {
-                                            $insert->judul=$judul2;
-                                        }
-                                        else
-                                        {
-                                            $insert->judul=$judul;
-                                        }
-                                        $insert->save();
-                                    }
-                                // }
-                            }
-                            // echo '<pre>';
-                            // print_r($data);
-                            // echo '</pre>';
-                            
-                        });
-                    }
-                
+                    $tag_parent.=$tag.$sep2.' > ';
                 }
-                $pesan='Crawler Telah Di Lakukan';  
-            // }
-        }
-        // dd('-');
+                else
+                {
+                    if(strpos($htmls[$k],'class')!==false)
+                    {
+                        $sep='.';
+                        $sep2=str_replace('class="','.',$htmls[$k]);
+                        $sep2=str_replace('"','',$sep2);
+                        $sep2=str_replace(' ','.',$sep2);
+                    }
+                    elseif(strpos($htmls[$k],'id')!==false)
+                    {
+                        $sep='#';
+                        $sep2=str_replace('id="','#',$htmls[$k]);
+                        $sep2=str_replace('"','',$sep2);
+                        $sep2=str_replace(' ','.',$sep2);
+                    }
+                    else
+                        $sep=$sep2='';
 
-        $vd=BeritaCrawler::where('portal_id',$setting)->where('tanggal',($request->tahun.'-'.$request->bulan.'-'.$request->tanggal))->get();
-       
-        $no=0;
-        $data=array();
-        foreach($vd as $k=>$v)
-        {
-            $data[$no]['judul']=$v->judul;
-            $data[$no]['link']=$v->url;
-            $no++;
+                    $tag_paging.=$tag.$sep2. ' > ';
+                }
+            }
+            $tag_parent=substr($tag_parent,0,-2);
+            $tag_paging=substr($tag_paging,0,-2);
+            $page_url=$request->input('url-paging');
+            if(strpos($link,'jpnn')!==false)
+            {
+                $client = new Client();
+                $crawler_b = $client->request('GET', $link);
+                $response_b = $client->getResponse();
+                $isi = $response_b->getContent();
+                $ee=HtmlDomParser::str_get_html($isi);
+                $ff=$ee->find($tag_parent);
+                
+                $data=$dd=$this->getjpnn(90,$tgl,$bln,$thn);
+            
+                $data=array();
+                $idx=0;
+                foreach($dd['judul'] as $k=>$v)
+                {
+                    $data['judul'][$idx]=$v;
+                    $data['link_berita'][$idx]=$dd['link_berita'][$k];
+                    $idx++;
+                }
+                foreach($ff as $e=>$f)
+                {
+                    $data['judul'][$idx]=$f->title;
+                    $data['link_berita'][$idx]=$f->href;
+                    $idx++;
+                }
+                
+                foreach($data['link_berita'] as $kd=>$vd)
+                {
+
+                    $isi = $this->get_isi($vd,$id_order);
+                    $judul = $data['judul'][$kd];
+                    $link_berita = $vd;
+
+                    $insert=new BeritaCrawler;
+                    $insert->portal_id=$request->setting;
+                    $insert->url=$link_berita;
+                    $insert->file='';
+                    $insert->isi=$isi;
+                    $insert->tanggal=($request->tahun.'-'.$request->bulan.'-'.$request->tanggal);
+                    $insert->judul=$judul;
+                    $insert->save();      
+                }
+            }
+            else
+            {
+                echo $tag_parent;
+                $tg=explode('>',$tag_parent);
+                $tag_new=$tg[count($tg)-2].' '.$tg[count($tg)-1];
+                $client = new Client();
+                $crawler_b = $client->request('GET', $link);
+                $response_b = $client->getResponse();
+                $isi = $response_b->getContent();
+                $ee=HtmlDomParser::str_get_html($isi);
+                
+                // $ff=$ee->find('h3.f16 a');
+                $ff=$ee->find($tag_new);
+                $idx=0;
+                foreach($ff as $e=>$f)
+                {
+                    // var_dump($f);
+                    $judul=trim(preg_replace('/(\v|\s)+/', ' ', $f->plaintext));
+                    if($judul!='')
+                    {
+                        $data['judul'][$idx]=$judul;
+                        $data['link_berita'][$idx]=$f->href;
+                        // $isi=$this->get_isi($f->href,$id_order);
+                        // foreach($isi as $is=>$vis)
+                        // {
+                        //     echo print_r($vis).'<br>';
+                        // }
+                        // $data['isi'][$idx]=$isi->text();
+                        $idx++;
+                    }
+                    // break;
+                }
+
+                dd($data);
+            }
         }
-        $keys=['Judul','Link'];
+       
+        // $no=0;
+        // $data=array();
+        // foreach($vd as $k=>$v)
+        // {
+        //     $data[$no]['judul']=$v->judul;
+        //     $data[$no]['link']=$v->url;
+        //     $no++;
+        // }
+        // $keys=['Judul','Link'];
         
-        return Redirect::to('admin/tool')->with(['success' => trans('message.SUCCESS'), 'viewData' => $data, 'keys' => $keys]);
+        // return Redirect::to('admin/tool')->with(['success' => trans('message.SUCCESS'), 'viewData' => $data, 'keys' => $keys]);
         // return Redirect::to('admin/tool')->with(['success' => trans('message.SUCCESS'), 'viewData' => $viewData]);
     }
 

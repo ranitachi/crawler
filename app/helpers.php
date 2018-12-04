@@ -22,4 +22,9 @@ function toMonth($m)
 
    return $bln[$m];
 }
+function jumlahhari($bulan,$tahun)
+{
+   $jlh=cal_days_in_month(CAL_GREGORIAN, $bulan, $tahun);
+   return $jlh;
+}
 ?>
