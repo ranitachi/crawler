@@ -554,7 +554,7 @@ class CrawlToolController extends Controller
                                 $crawler_page = Scrapper::request('GET', $page_url.$ix);
                             }
                             echo $tag_parent;
-                            $data_craw = $crawler_page->filter($tag_parent)->each(function($node) use ($request,$page_url) {
+                            $data_craw = $crawler_page->filter($tag_parent)->each(function($node) use ($request,$page_url,$id_order) {
                                 $title = $node->extract(array('_text','href','title'));
                                 
 
