@@ -106,8 +106,23 @@ class CrawlToolController extends Controller
     /**
      * @param Request $request
      */
-    public function store(Request $request) {
-                if($request->tanggal==0)
+    public function store(Request $request) 
+    {
+        $id_order=$request->id_order;
+        $table = $request->tables;
+        $url = $request->url;
+        $tags = $request->tags;
+        $htmls = $request->htmls;
+        $hid_fields = $request->hid_fields;
+        $depths = $request->depths;
+        $types = $request->types;
+        $setting = $request->setting;
+        $data = array();
+        $arrDepths = $this->divDepth($depths);
+        $time['tgl']=$tgl=$request->tanggal;
+        $time['bln']=$bln=$request->bulan;
+        $time['thn']=$thn=$request->tahun;
+        if($request->tanggal==0)
         {
             $jlhhari=jumlahhari($bln,$thn);
             for($xx=1;$xx<=$jlhhari;$xx++)
