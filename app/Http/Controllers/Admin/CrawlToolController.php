@@ -342,7 +342,7 @@ class CrawlToolController extends Controller
                                             // if($code==200)
                                             // {
                                                 echo $tgl.'-<br>';
-                                                $isi=get_isi($link_berita,$id_order);
+                                                $isi=$this->get_isi($link_berita,$id_order);
                                                 $insert=new BeritaCrawler;
                                                 $insert->portal_id=$request->setting;
                                                 $insert->url=$link_berita;
@@ -592,7 +592,7 @@ class CrawlToolController extends Controller
                                         // $isi=$body
                                         // if($code==200)
                                         // {
-                                            $isi=get_isi($link_berita,$id_order);
+                                            $isi=$this->get_isi($link_berita,$id_order);
 
                                             $insert=new BeritaCrawler;
                                             $insert->portal_id=$request->setting;
