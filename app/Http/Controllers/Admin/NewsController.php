@@ -49,10 +49,23 @@ class NewsController extends Controller
         $order=Order::all();
         $kategori=Kategori::all();
         $provinsi=Provinsi::all();
-        if(isset($request->key))
-            $data=BeritaCrawler::where('judul','like',"%$request->key%")->orderBy('tanggal')->paginate(20);
+        if(isset($request->bln))
+        {
+            $thn=$request->thn;
+            $bln=($request->bln <10) ? ('0'.$request->bln) : $request->bln;
+            
+            if(isset($request->key))
+                $data=BeritaCrawler::where('tanggal','like',"%$thn-$bln%")->where('judul','like',"%$request->key%")->orderBy('tanggal')->paginate(20);
+            else
+                $data=BeritaCrawler::where('tanggal','like',"%$thn-$bln%")->orderBy('tanggal')->paginate(20);
+        }
         else
-            $data=BeritaCrawler::orderBy('tanggal')->paginate(20);
+        {
+            if(isset($request->key))
+                $data=BeritaCrawler::where('judul','like',"%$request->key%")->orderBy('tanggal')->paginate(20);
+            else
+                $data=BeritaCrawler::orderBy('tanggal')->paginate(20);
+        }
 
         if ($request->ajax()) {
             return view('protected.admin.news.data', ['data' => $data])->render();  

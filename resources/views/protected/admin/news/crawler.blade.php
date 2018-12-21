@@ -66,7 +66,7 @@
                         <div class="row">
                             <div class="col-md-12 text-right" style="padding-top:5px">&nbsp;</div>
                             
-                               <button type="button" class="btn btn-md btn-success col-md-12">
+                               <button type="button" class="btn btn-md btn-success col-md-12" onclick="cariberita()">
                                    <i class="fa fa-search"></i> Search
                                 </button>
                             
@@ -124,10 +124,22 @@
 
                 var url = $(this).attr('href');  
                 var search = $('#search').val();
+                var portal = $('#portal').val();
+                var bulan = $('#bulan').val();
+                var tahun = $('#tahun').val();
+
+                var bln='&bln='+bulan;
+                var thn='&thn='+tahun;
                 if(search!='')
                     getArticles(url+'&key='+search);
                 else
                     getArticles(url);
+
+                if(bulan!=-1)
+                {
+                    getArticles(url+'&key='+search+bln+thn);
+                }
+
                 // alert(url);
                 window.history.pushState("", "", url);
             });
@@ -142,7 +154,22 @@
                 });
             }
         });
-
+        function cariberita()
+        {
+            var portal=$('#portal').val();
+            var val=$('#search').val();
+            var bulan=$('#bulan').val();
+            var tahun=$('#tahun').val();
+            var url=APP_URL+'/admin/news';
+            $.ajax({
+                url : url  ,
+                data : {key:val,bln:bulan,thn:tahun,portal:portal}
+            }).done(function (data) {
+                $('#data').html(data);  
+            }).fail(function () {
+                alert('Data could not be loaded.');
+            });
+        }
         function caridata(val)
         {
             var url=APP_URL+'/admin/news';

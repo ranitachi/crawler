@@ -219,7 +219,7 @@ class CrawlToolController extends Controller
     }
     public function store(Request $request) 
     {
-        dd($request->all());
+        // dd($request->all());
         $id_order=$request->id_order;
         $table = $request->tables;
         $url = $request->url;
