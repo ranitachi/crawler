@@ -18,6 +18,7 @@ use App\Models\BeritaResult;
 use App\Business\AuthorBusiness;
 use Illuminate\Support\Facades\Redirect;
 use Sunra\PhpSimple\HtmlDomParser;
+// use Pagination;
 class NewsController extends Controller
 {
     private $model;
@@ -42,15 +43,23 @@ class NewsController extends Controller
      *
      * @return Response
      */
-    public function index()
+    public function index(Request $request)
     {
         $viewData = $this->newsBusiness->getAll();
         $order=Order::all();
         $kategori=Kategori::all();
         $provinsi=Provinsi::all();
+        if(isset($request->key))
+            $data=BeritaCrawler::where('judul','like',"%$request->key%")->orderBy('tanggal')->paginate(20);
+        else
+            $data=BeritaCrawler::orderBy('tanggal')->paginate(20);
+
+        if ($request->ajax()) {
+            return view('protected.admin.news.data', ['data' => $data])->render();  
+        }
         // $viewData = BeritaCrawler
         // return view('protected.admin.news.index', compact('viewData'));
-        return view('protected.admin.news.crawler', compact('viewData','order','kategori','provinsi'));
+        return view('protected.admin.news.crawler', compact('viewData','order','kategori','provinsi','data'));
     }
 
     public function destroy(Request $request)

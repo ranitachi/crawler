@@ -106,8 +106,120 @@ class CrawlToolController extends Controller
     /**
      * @param Request $request
      */
+    public function simpancrawl($id_order,$tgl,$bln,$thn)
+    {
+        $orders=Order::find($id_order);
+        $settings=Setting::where('order_id',$id_order)->get();
+        $pagingsetting=PagingSetting::where('order_id',$id_order)->get();
+        $date_format=$orders->date_format;
+        $url_paging=$orders->url_paging;
+        $data=array();
+        
+        foreach($settings as $ks => $vs)
+        {
+            $data['tags'][$vs->name]=$vs->tag;
+            $data['htmls'][$vs->name]=$vs->html;
+            $data['hid_fields'][$vs->name]=is_null($vs->field) ? '' : $vs->field;
+            $data['types'][$vs->name]=is_null($vs->type) ? 0 : $vs->type;
+            $data['depths'][]=$vs->name;
+        }
+        foreach($pagingsetting as $kp => $vp)
+        {
+            $data['tags'][$vp->name]=$vp->tag;
+            $data['htmls'][$vp->name]=$vp->html;
+            $data['hid_fields'][$vp->name]=is_null($vp->field) ? '' : $vp->field;
+            $data['types'][$vp->name]=is_null($vp->type) ? 0 : $vp->type;
+            $data['depths'][]=$vp->name;
+        }
+
+        $url = $orders->url;
+        $tags = $data['tags'];
+        $htmls = $data['htmls'];
+        $hid_fields = $data['hid_fields'];
+        $depths = $data['depths'];
+        $types = $data['types'];
+        $setting = $id_order;
+        if($tgl==0)
+        {
+            $jlhhari=jumlahhari($bln,$thn);
+            for($xx=1;$xx<=$jlhhari;$xx++)
+            {
+            }
+        }
+        else
+        {
+            if(strpos($url,'jpnn')!==false)
+            {
+                $date='&d='.$tgl.'&m='.$bln.'&y='.$thn;
+            }
+            else
+            {
+                $df=str_replace('yyyy','Y',$date_format);
+                $df=str_replace('mm','m',$df);
+                $df=str_replace('dd','d',$df);
+                $date=date($df,strtotime($thn.'-'.$bln.'-'.$tgl));
+            }
+            
+            $link=$url.$date;
+            $tag_parent=$tag_child=$tag_paging='';
+
+            foreach($tags as $k=>$tag)
+            {
+                if($k!=100)
+                {
+
+                    if(strpos($htmls[$k],'class')!==false)
+                    {
+                        $sep='.';
+                        $sep2=str_replace('class="','.',$htmls[$k]);
+                        $sep2=str_replace('"','',$sep2);
+                        $sep2=str_replace(' ','.',$sep2);
+                    }
+                    elseif(strpos($htmls[$k],'id')!==false)
+                    {
+                        $sep='#';
+                        $sep2=str_replace('id="','#',$htmls[$k]);
+                        $sep2=str_replace('"','',$sep2);
+                        $sep2=str_replace(' ','.',$sep2);
+                    }
+                    else
+                        $sep=$sep2='';
+
+                    $tag_parent.=$tag.$sep2.' > ';
+                }
+                else
+                {
+                    if(strpos($htmls[$k],'class')!==false)
+                    {
+                        $sep='.';
+                        $sep2=str_replace('class="','.',$htmls[$k]);
+                        $sep2=str_replace('"','',$sep2);
+                        $sep2=str_replace(' ','.',$sep2);
+                    }
+                    elseif(strpos($htmls[$k],'id')!==false)
+                    {
+                        $sep='#';
+                        $sep2=str_replace('id="','#',$htmls[$k]);
+                        $sep2=str_replace('"','',$sep2);
+                        $sep2=str_replace(' ','.',$sep2);
+                    }
+                    else
+                        $sep=$sep2='';
+
+                    $tag_paging.=$tag.$sep2. ' > ';
+                }
+            }
+            $tag_parent=substr($tag_parent,0,-2);
+            $tag_paging=substr($tag_paging,0,-2);
+            $page_url=$url_paging;
+            echo $tag_parent;
+        }
+        // dd ($data);
+        // return ($setting);
+    }
     public function store(Request $request) 
     {
+        dd($request->all());
         $id_order=$request->id_order;
         $table = $request->tables;
         $url = $request->url;
@@ -1228,5 +1340,10 @@ class CrawlToolController extends Controller
         }
 
         return Response::json($isDuplicate);
+    }
+
+    public function coba($str)
+    {
+        echo $str;
     }
 } //class

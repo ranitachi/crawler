@@ -89,7 +89,13 @@ Route::get('scrapper-js', function() {
         echo $response->getContent();
     }
 });
+Route::get('simpancrawl/{idorder}/{tgl}/{bln}/{thn}', 'Admin\CrawlToolController@simpancrawl');
 Route::get('getjpnn/{offset}/{tgl}/{bln}/{thn}', 'Admin\CrawlToolController@getjpnn');
+Route::get('/foo', function()
+{
+    $exitCode = Artisan::call('command:name', ['--option' => 'foo']);
+ 
+});
 Route::get('scrapper', function() {
 //   $crawler = Scrapper::request('GET', 'http://malesbanget.com/');
     // $crawler = Scrapper::request('GET', 'https://news.detik.com/indeks/all?date=01%2F01%2F2015');

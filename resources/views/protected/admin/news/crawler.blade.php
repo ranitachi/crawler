@@ -66,7 +66,7 @@
                         <div class="row">
                             <div class="col-md-12 text-right" style="padding-top:5px">&nbsp;</div>
                             
-                               <button type="button" class="btn btn-md btn-success col-md-12" onclick="loaddata()">
+                               <button type="button" class="btn btn-md btn-success col-md-12">
                                    <i class="fa fa-search"></i> Search
                                 </button>
                             
@@ -81,7 +81,17 @@
             </div>
             @endif
             <div class="x_content">
-                <div id="data" class="text-center">Silahkan Pilih Portal dan Bulan Terlebih Dahulu</div>
+                <div class="row">
+                    <div class="col-md-9"></div>
+                    <div class="col-md-3">
+                        <form class="example">
+                            <input type="text" placeholder="Search.." name="search" id="search" onkeyup="caridata(this.value)">
+                        </form>
+                    </div>
+                </div>
+                <div id="data" class="text-center" style="position: relative;">
+                    @include('protected.admin.news.data')
+                </div>
             </div>
         </div>
     </div>
@@ -93,32 +103,74 @@
 
 @section('outJS')
     <!-- Datatables -->
-    <script src="{{asset('assets/js/datatables/js-new/datatables.js') }}"></script>
+    {{-- <script src="{{asset('assets/js/datatables/js-new/datatables.js') }}"></script> --}}
     <script src="{{asset('assets/js/datatables/js-new/jquery.highlight.js') }}"></script>
     <script src="{{asset('assets/js/datatables/js-new/dataTables.highlight.js')}}"></script>
-    <link ref="stylesheet" href="{{asset('assets/js/datatables/js-new/datatables.css')}}">
-    <link ref="stylesheet" href="{{asset('assets/js/datatables/js-new/dataTables.highlights.css')}}">
+    {{-- <link ref="stylesheet" href="{{asset('assets/js/datatables/js-new/datatables.css')}}">
+    <link ref="stylesheet" href="{{asset('assets/js/datatables/js-new/dataTables.highlights.css')}}"> --}}
     {{-- <script src="{{asset('assets/js/datatables/js/jquery.dataTables.js') }}"></script>
     <script src="{{asset('assets/js/datatables/tools/js/dataTables.tableTools.js')}}"></script> --}}
     <script src="{{asset('assets/js/datepicker/daterangepicker.js')}}"></script>
-    <script src="{{asset('assets/js/admin/news.js')}}"></script>
+    {{-- <script src="{{asset('assets/js/admin/news.js')}}"></script> --}}
     <script>
         var APP_URL='{{url("/")}}';
-        loaddata();
-        
-        function loaddata()
+
+        $(function() {
+            $('body').on('click', '.pagination a', function(e) {
+                e.preventDefault();
+
+                $('#load a').css('color', '#dfecf6');
+                // $('#load').append('<img style="position: absolute; left: 0; top: 0; z-index: 100000;" src="/images/loading.gif" />');
+
+                var url = $(this).attr('href');  
+                var search = $('#search').val();
+                if(search!='')
+                    getArticles(url+'&key='+search);
+                else
+                    getArticles(url);
+                // alert(url);
+                window.history.pushState("", "", url);
+            });
+
+            function getArticles(url) {
+                $.ajax({
+                    url : url  
+                }).done(function (data) {
+                    $('#data').html(data);  
+                }).fail(function () {
+                    alert('Data could not be loaded.');
+                });
+            }
+        });
+
+        function caridata(val)
         {
-            var portal=$('#portal').val();
-            var bulan=$('#bulan').val();
-            var tahun=$('#tahun').val();
-            $('#data').load(APP_URL + '/admin/data/'+bulan+'-'+tahun+'/'+portal,function(){
-                var table=$('#news').DataTable();
-                //table.search( 'tempo' ).draw();
-                // $("#pilihsemua").click(function(){
-                //     $('input:checkbox').not(this).prop('checked', this.checked);
-                // });
+            var url=APP_URL+'/admin/news';
+            $.ajax({
+                url : url  ,
+                data : {key:val}
+            }).done(function (data) {
+                $('#data').html(data);  
+            }).fail(function () {
+                alert('Data could not be loaded.');
             });
         }
+
+        // loaddata();
+        
+        // function loaddata()
+        // {
+        //     var portal=$('#portal').val();
+        //     var bulan=$('#bulan').val();
+        //     var tahun=$('#tahun').val();
+        //     $('#data').load(APP_URL + '/admin/data/'+bulan+'-'+tahun+'/'+portal,function(){
+        //         // var table=$('#news').DataTable();
+        //         //table.search( 'tempo' ).draw();
+        //         // $("#pilihsemua").click(function(){
+        //         //     $('input:checkbox').not(this).prop('checked', this.checked);
+        //         // });
+        //     });
+        // }
 
         function showmodal(id)
         {
@@ -140,6 +192,41 @@
             $('#kab').load(APP_URL+'/kabupaten-by/'+idprov);
         }
     </script>
+    <style>
+        /* Style the search field */
+        form.example input[type=text] {
+        padding: 10px;
+        font-size: 17px;
+        border: 1px solid grey;
+        float: left;
+        width: 100%;
+        background: #f1f1f1;
+        }
+
+        /* Style the submit button */
+        form.example button {
+        float: left;
+        width: 20%;
+        padding: 10px;
+        background: #2196F3;
+        color: white;
+        font-size: 17px;
+        border: 1px solid grey;
+        border-left: none; /* Prevent double borders */
+        cursor: pointer;
+        }
+
+        form.example button:hover {
+        background: #0b7dda;
+        }
+
+        /* Clear floats */
+        form.example::after {
+        content: "";
+        clear: both;
+        display: table;
+        }
+    </style>
 @stop
 @section('modal')
     <div class="modal fade" id="modal-add" tabindex="-1" role="dialog">

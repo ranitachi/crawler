@@ -1,5 +1,5 @@
 
-<table id="news" class="table table-striped responsive-utilities jambo_table">
+<table id="" class="table table-striped responsive-utilities">
     <thead>
         <tr class="headings">
             <th>No</th>
@@ -12,10 +12,12 @@
     </thead>
 
     <tbody>
-        
+        <?php
+            $no=((isset($_GET['page']) ? $_GET['page'] : 1) * 20) -19;
+        ?>
         @foreach ($data as $key=> $item)
             <tr class="even pointer">
-                <td class="text-center">{{$key+1}}</td>
+                <td class="text-center">{{$no}}</td>
                 <td class="">{{$item->portal->name}}</td>
                 <td class="text-left">{{$item->judul=='' ? $item->url : $item->judul}}</td>
                 <td class="text-left">{{date('d-m-Y',strtotime($item->tanggal))}}</td>
@@ -24,6 +26,10 @@
                 </td>
                 {{-- <td><input type="checkbox" name="pilih[{{$item->id}}]"></td> --}}
             </tr>
+            <?php
+                $no++;
+            ?>
         @endforeach
     </tbody>
 </table>
+{!! $data->render() !!}
