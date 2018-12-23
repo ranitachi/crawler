@@ -231,9 +231,10 @@ class CrawlToolController extends Controller
                     $data_craw = $crawler->filter($tag_parent)->each(function($nodee) use ($data,&$output) 
                     {
                         $title = $nodee->extract(array('_text','href','title'));
-                        $output['title'][]=trim(preg_replace('/\t+/', '',$title[0][2]));
+                        $output['title'][]=trim(preg_replace('/\t+/', '',$title[0][0]));
                         $output['href'][]=trim(preg_replace('/\t+/', '',$title[0][1]));
                         $output['text'][]=trim(preg_replace('/\t+/', '',$title[0][0]));
+                        $output['title2'][]=trim(preg_replace('/\t+/', '',$title[0][2]));
                     });
                     // echo $x;
                     if(strpos($x,'www.tribunnews.com')!==false)
@@ -242,11 +243,21 @@ class CrawlToolController extends Controller
                         $hal=$l2;
                         // echo $hal;
                     }
+                    elseif(strpos($x,'detik.com')!==false)
+                    {
+                        $gethal=$y[count($y)-2];
+                        $bef=strtok($gethal,'?');
+                        $bf=explode('/',$bef);
+                        $hal=$bf[count($bf)-1];
+                    }
                     // echo $index.'<br>';
                     for($xy=2;$xy<=$hal;$xy++)
                     {
-                        
-                        $pageurl=$link.$page_url.$xy;
+                        if(strpos($x,'detik.com')!==false)
+                            $pageurl=strtok($url,'?').'/'.$xy.'?date='.$date;
+                        else    
+                            $pageurl=$link.$page_url.$xy;
+
                         $crawler2 = Scrapper::request('GET', $pageurl);
                         $response2= Scrapper::getResponse();
                         if($response2->getStatus()==200)
@@ -254,9 +265,10 @@ class CrawlToolController extends Controller
                             $data_craw = $crawler2->filter($tag_parent)->each(function($nodeee) use ($data,&$output) 
                             {
                                 $title = $nodeee->extract(array('_text','href','title'));
-                                $output['title'][]=trim(preg_replace('/\t+/', '',$title[0][2]));
+                                $output['title'][]=trim(preg_replace('/\t+/', '',$title[0][0]));
                                 $output['href'][]=trim(preg_replace('/\t+/', '',$title[0][1]));
                                 $output['text'][]=trim(preg_replace('/\t+/', '',$title[0][0]));
+                                $output['title2'][]=trim(preg_replace('/\t+/', '',$title[0][2]));
                                 
                             });
                         }
@@ -387,7 +399,7 @@ class CrawlToolController extends Controller
             if($response->getStatus()==200)
             {
                 // $page_url=$link.$page_url;
-                // echo $link;
+                // echo $tag_paging.'<br>';
                 $data_paging = $crawler->filter($tag_paging)->each(function($node) use ($data,$tgl,&$x,&$y) {
                     $title = $node->extract(array('_text','href','title'));
                     $x=$title[0][1];
@@ -397,22 +409,34 @@ class CrawlToolController extends Controller
                 $data_craw = $crawler->filter($tag_parent)->each(function($nodee) use ($data,&$output) 
                 {
                     $title = $nodee->extract(array('_text','href','title'));
-                    $output['title'][]=trim(preg_replace('/\t+/', '',$title[0][2]));
+                    $output['title'][]=trim(preg_replace('/\t+/', '',$title[0][0]));
                     $output['href'][]=trim(preg_replace('/\t+/', '',$title[0][1]));
                     $output['text'][]=trim(preg_replace('/\t+/', '',$title[0][0]));
+                    $output['title2'][]=trim(preg_replace('/\t+/', '',$title[0][2]));
                 });
-                // echo $x;
+                // // echo $x;
                 if(strpos($x,'www.tribunnews.com')!==false)
                 {
                     list($l1,$l2)=explode("page=",$x);
                     $hal=$l2;
                     // echo $hal;
                 }
-                // echo $index.'<br>';
-                for($x=2;$x<=$hal;$x++)
+                elseif(strpos($x,'detik.com')!==false)
                 {
+                    $gethal=$y[count($y)-2];
+                    $bef=strtok($gethal,'?');
+                    $bf=explode('/',$bef);
+                    $hal=$bf[count($bf)-1];
+                }
+                // // echo $index.'<br>';
+                for($xi=2;$xi<=$hal;$xi++)
+                {
+                    if(strpos($x,'detik.com')!==false)
+                        $pageurl=strtok($url,'?').'/'.$xi.'?date='.$date;
+                    else
+                        $pageurl=$link.$page_url.$xi;
                     
-                    $pageurl=$link.$page_url.$x;
+                    // echo $pageurl.'<br>';
                     $crawler2 = Scrapper::request('GET', $pageurl);
                     $response2= Scrapper::getResponse();
                     if($response2->getStatus()==200)
@@ -420,15 +444,14 @@ class CrawlToolController extends Controller
                         $data_craw = $crawler2->filter($tag_parent)->each(function($nodeee) use ($data,&$output) 
                         {
                             $title = $nodeee->extract(array('_text','href','title'));
-                            $output['title'][]=trim(preg_replace('/\t+/', '',$title[0][2]));
+                            $output['title'][]=trim(preg_replace('/\t+/', '',$title[0][0]));
                             $output['href'][]=trim(preg_replace('/\t+/', '',$title[0][1]));
                             $output['text'][]=trim(preg_replace('/\t+/', '',$title[0][0]));
+                            $output['title2'][]=trim(preg_replace('/\t+/', '',$title[0][2]));
                             
                         });
                     }
                 }
-                // return ($output);
-
                 foreach($output['href'] as $k => $v)
                 {
 
@@ -447,9 +470,9 @@ class CrawlToolController extends Controller
                 }
 
             }
-            // return ($output);
-            return 'beres';
-            // $konten = $dom->find($div_conten,0);
+            return ($output);
+            // return 'beres';
+            
         }
         // dd ($data);
         // return ($setting);
