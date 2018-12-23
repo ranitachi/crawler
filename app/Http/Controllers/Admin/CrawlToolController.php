@@ -153,6 +153,11 @@ class CrawlToolController extends Controller
                 {
                     $date='&d='.$tgl.'&m='.$bln.'&y='.$thn;
                 }
+                elseif(strpos($url,'detik.com')!==false)
+                {
+                    // $date=$bln.'/'.$tgl.'/'.$thn;
+                    $date=date('m/d/Y',strtotime($thn.'-'.$bln.'-'.$tgl));
+                }
                 else
                 {
                     $df=str_replace('yyyy','Y',$date_format);
@@ -249,6 +254,8 @@ class CrawlToolController extends Controller
                         $bef=strtok($gethal,'?');
                         $bf=explode('/',$bef);
                         $hal=$bf[count($bf)-1];
+                        if($hal>1000)
+                            $hal=12;
                     }
                     // echo $index.'<br>';
                     for($xy=2;$xy<=$hal;$xy++)
@@ -257,7 +264,7 @@ class CrawlToolController extends Controller
                             $pageurl=strtok($url,'?').'/'.$xy.'?date='.$date;
                         else    
                             $pageurl=$link.$page_url.$xy;
-
+                        // echo $pageurl.'<br>';
                         $crawler2 = Scrapper::request('GET', $pageurl);
                         $response2= Scrapper::getResponse();
                         if($response2->getStatus()==200)
@@ -274,22 +281,22 @@ class CrawlToolController extends Controller
                         }
                     }
                     $outputall[$xx]=$output;
-                    // foreach($output['href'] as $k => $v)
-                    // {
+                    foreach($output['href'] as $k => $v)
+                    {
 
-                            // $isi=$this->get_isi($v,$id_order);
+                            $isi=$this->get_isi($v,$id_order);
                             
-                            // $cek['url']=$v;
-                            // // echo $id_order;
-                            // $insert=BeritaCrawler::firstOrCreate($cek);
-                            // $insert->portal_id=$id_order;
-                            // $insert->url=$v;
-                            // $insert->file='';
-                            // $insert->isi='-';
-                            // $insert->tanggal=($thn.'-'.$bln.'-'.$tgl);
-                            // $insert->judul=$output['title'][$k];
-                            // $insert->save();
-                    // }
+                            $cek['url']=$v;
+                            // echo $id_order;
+                            $insert=BeritaCrawler::firstOrCreate($cek);
+                            $insert->portal_id=$id_order;
+                            $insert->url=$v;
+                            $insert->file='';
+                            $insert->isi='-';
+                            $insert->tanggal=($thn.'-'.$bln.'-'.$tgl);
+                            $insert->judul=$output['title'][$k];
+                            $insert->save();
+                    }
 
                 }
             }
