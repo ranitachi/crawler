@@ -13,7 +13,7 @@ class Crawler extends Command
      *
      * @var string
      */
-    protected $signature = 'crawler {userid}';
+    protected $signature = 'crawler {idorder} {tgl} {bln} {thn}';
 
     /**
      * The console command description.
@@ -40,11 +40,15 @@ class Crawler extends Command
     public function handle()
     {
         $controller = new CrawlToolController(); // make sure to import the controller
-        $userId = $this->argument('userid');
-        $coba=$controller->coba($userId);
+        $idorder = $this->argument('idorder');
+        $tgl = $this->argument('tgl');
+        $bln = $this->argument('bln');
+        $thn = $this->argument('thn');
+        // $coba=$controller->coba($idorder,$thn,$bln,$tgl);
+        $coba=$controller->simpancrawl($idorder,$tgl,$bln,$thn);
         
 
-        echo $coba;
+        // echo $coba;
         // return $userId;
     }
 }

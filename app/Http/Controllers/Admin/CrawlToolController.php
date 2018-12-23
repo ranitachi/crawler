@@ -279,7 +279,8 @@ class CrawlToolController extends Controller
                 }
 
             }
-            return ($output);
+            // return ($output);
+            return 'beres';
             // $konten = $dom->find($div_conten,0);
         }
         // dd ($data);
@@ -1410,8 +1411,8 @@ class CrawlToolController extends Controller
         return Response::json($isDuplicate);
     }
 
-    public function coba($str)
+    public function coba($str,$thn,$bln,$tgl)
     {
-        echo $str;
+        echo $str.'-'.$thn.'-'.$bln.'-'.$tgl;
     }
 } //class
