@@ -212,7 +212,75 @@ class CrawlToolController extends Controller
             $tag_parent=substr($tag_parent,0,-2);
             $tag_paging=substr($tag_paging,0,-2);
             $page_url=$url_paging;
-            echo $tag_parent;
+            $crawler = Scrapper::request('GET', $link);
+            $response = Scrapper::getResponse();   
+            $output=$output2=$outputall=array(); 
+            $hal=0;    
+            if($response->getStatus()==200)
+            {
+                // $page_url=$link.$page_url;
+                // echo $link;
+                $data_paging = $crawler->filter($tag_paging)->each(function($node) use ($data,$tgl,&$x,&$y) {
+                    $title = $node->extract(array('_text','href','title'));
+                    $x=$title[0][1];
+                    $y[]=$title[0][1];
+                    // echo $x.'<br>';
+                });
+                $data_craw = $crawler->filter($tag_parent)->each(function($nodee) use ($data,&$output) 
+                {
+                    $title = $nodee->extract(array('_text','href','title'));
+                    $output['title'][]=trim(preg_replace('/\t+/', '',$title[0][2]));
+                    $output['href'][]=trim(preg_replace('/\t+/', '',$title[0][1]));
+                    $output['text'][]=trim(preg_replace('/\t+/', '',$title[0][0]));
+                });
+                // echo $x;
+                if(strpos($x,'www.tribunnews.com')!==false)
+                {
+                    list($l1,$l2)=explode("page=",$x);
+                    $hal=$l2;
+                    // echo $hal;
+                }
+                // echo $index.'<br>';
+                for($x=2;$x<=$hal;$x++)
+                {
+                    
+                    $pageurl=$link.$page_url.$x;
+                    $crawler2 = Scrapper::request('GET', $pageurl);
+                    $response2= Scrapper::getResponse();
+                    if($response2->getStatus()==200)
+                    {
+                        $data_craw = $crawler2->filter($tag_parent)->each(function($nodeee) use ($data,&$output) 
+                        {
+                            $title = $nodeee->extract(array('_text','href','title'));
+                            $output['title'][]=trim(preg_replace('/\t+/', '',$title[0][2]));
+                            $output['href'][]=trim(preg_replace('/\t+/', '',$title[0][1]));
+                            $output['text'][]=trim(preg_replace('/\t+/', '',$title[0][0]));
+                            
+                        });
+                    }
+                }
+                // return ($output);
+
+                foreach($output['href'] as $k => $v)
+                {
+
+                        // $isi=$this->get_isi($v,$id_order);
+                        
+                        $cek['url']=$v;
+                        // echo $id_order;
+                        $insert=BeritaCrawler::firstOrCreate($cek);
+                        $insert->portal_id=$id_order;
+                        $insert->url=$v;
+                        $insert->file='';
+                        $insert->isi='-';
+                        $insert->tanggal=($thn.'-'.$bln.'-'.$tgl);
+                        $insert->judul=$output['title'][$k];
+                        $insert->save();
+                }
+
+            }
+            return ($output);
+            // $konten = $dom->find($div_conten,0);
         }
         // dd ($data);
         // return ($setting);
