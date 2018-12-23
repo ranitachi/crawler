@@ -22,6 +22,7 @@ use Scrapper;
 use Goutte\Client;
 use GuzzleHttp\Client as GuzzleClient;
 use Sunra\PhpSimple\HtmlDomParser;
+use Storage;
 /**
  * Class CrawlToolController
  * @package App\Http\Controllers\Admin
@@ -142,9 +143,176 @@ class CrawlToolController extends Controller
         if($tgl==0)
         {
             $jlhhari=jumlahhari($bln,$thn);
+            $outputall=array();
             for($xx=1;$xx<=$jlhhari;$xx++)
+            // for($xx=1;$xx<=4;$xx++)
             {
+                // $bln=$xx;
+                $tgl=$xx;
+                if(strpos($url,'jpnn')!==false)
+                {
+                    $date='&d='.$tgl.'&m='.$bln.'&y='.$thn;
+                }
+                else
+                {
+                    $df=str_replace('yyyy','Y',$date_format);
+                    $df=str_replace('mm','m',$df);
+                    $df=str_replace('dd','d',$df);
+                    $date=date($df,strtotime($thn.'-'.$bln.'-'.$tgl));
+                }
+                
+                $link=$url.$date;
+                $tag_parent=$tag_child=$tag_paging='';
+
+                foreach($tags as $k=>$tag)
+                {
+                    if($k!=100)
+                    {
+
+                        if(strpos($htmls[$k],'class')!==false)
+                        {
+                            $sep='.';
+                            $sep2=str_replace('class="','.',$htmls[$k]);
+                            $sep2=str_replace('"','',$sep2);
+                            $sep2=str_replace(' ','.',$sep2);
+                        }
+                        elseif(strpos($htmls[$k],'id')!==false)
+                        {
+                            $sep='#';
+                            $sep2=str_replace('id="','#',$htmls[$k]);
+                            $sep2=str_replace('"','',$sep2);
+                            $sep2=str_replace(' ','.',$sep2);
+                        }
+                        else
+                            $sep=$sep2='';
+
+                        $tag_parent.=$tag.$sep2.' > ';
+                    }
+                    else
+                    {
+                        if(strpos($htmls[$k],'class')!==false)
+                        {
+                            $sep='.';
+                            $sep2=str_replace('class="','.',$htmls[$k]);
+                            $sep2=str_replace('"','',$sep2);
+                            $sep2=str_replace(' ','.',$sep2);
+                        }
+                        elseif(strpos($htmls[$k],'id')!==false)
+                        {
+                            $sep='#';
+                            $sep2=str_replace('id="','#',$htmls[$k]);
+                            $sep2=str_replace('"','',$sep2);
+                            $sep2=str_replace(' ','.',$sep2);
+                        }
+                        else
+                            $sep=$sep2='';
+
+                        $tag_paging.=$tag.$sep2. ' > ';
+                    }
+                }
+                $tag_parent=substr($tag_parent,0,-2);
+                $tag_paging=substr($tag_paging,0,-2);
+                $page_url=$url_paging;
+                // echo $link.'<br>';
+                $crawler = Scrapper::request('GET', $link);
+                $response = Scrapper::getResponse();   
+                $output=$output2=array(); 
+                $hal=0;    
+                if($response->getStatus()==200)
+                {
+                    // $page_url=$link.$page_url;
+                    // echo $link;
+                    $data_paging = $crawler->filter($tag_paging)->each(function($node) use ($data,$tgl,&$x,&$y) {
+                        $title = $node->extract(array('_text','href','title'));
+                        $x=$title[0][1];
+                        $y[]=$title[0][1];
+                        // echo $x.'<br>';
+                    });
+                    $data_craw = $crawler->filter($tag_parent)->each(function($nodee) use ($data,&$output) 
+                    {
+                        $title = $nodee->extract(array('_text','href','title'));
+                        $output['title'][]=trim(preg_replace('/\t+/', '',$title[0][2]));
+                        $output['href'][]=trim(preg_replace('/\t+/', '',$title[0][1]));
+                        $output['text'][]=trim(preg_replace('/\t+/', '',$title[0][0]));
+                    });
+                    // echo $x;
+                    if(strpos($x,'www.tribunnews.com')!==false)
+                    {
+                        list($l1,$l2)=explode("page=",$x);
+                        $hal=$l2;
+                        // echo $hal;
+                    }
+                    // echo $index.'<br>';
+                    for($xy=2;$xy<=$hal;$xy++)
+                    {
+                        
+                        $pageurl=$link.$page_url.$xy;
+                        $crawler2 = Scrapper::request('GET', $pageurl);
+                        $response2= Scrapper::getResponse();
+                        if($response2->getStatus()==200)
+                        {
+                            $data_craw = $crawler2->filter($tag_parent)->each(function($nodeee) use ($data,&$output) 
+                            {
+                                $title = $nodeee->extract(array('_text','href','title'));
+                                $output['title'][]=trim(preg_replace('/\t+/', '',$title[0][2]));
+                                $output['href'][]=trim(preg_replace('/\t+/', '',$title[0][1]));
+                                $output['text'][]=trim(preg_replace('/\t+/', '',$title[0][0]));
+                                
+                            });
+                        }
+                    }
+                    $outputall[$xx]=$output;
+                    // foreach($output['href'] as $k => $v)
+                    // {
+
+                            // $isi=$this->get_isi($v,$id_order);
+                            
+                            // $cek['url']=$v;
+                            // // echo $id_order;
+                            // $insert=BeritaCrawler::firstOrCreate($cek);
+                            // $insert->portal_id=$id_order;
+                            // $insert->url=$v;
+                            // $insert->file='';
+                            // $insert->isi='-';
+                            // $insert->tanggal=($thn.'-'.$bln.'-'.$tgl);
+                            // $insert->judul=$output['title'][$k];
+                            // $insert->save();
+                    // }
+
+                }
             }
+            $str=array();
+            $jlh=0;
+            $ik=0;
+            foreach($outputall as $tg=>$val)
+            {
+                foreach($val['href'] as $idx => $vl)
+                {
+                    // $insert=BeritaCrawler::where('url',$vl)->first();
+                    // if(!$insert)
+                    // {
+                        $str[$ik]['url']=$vl;
+                        $str[$ik]['portal_id']=$id_order;
+                        $str[$ik]['file']='-';
+                        $str[$ik]['tanggal']=($thn.'-'.$bln.'-'.$tg);
+                        $str[$ik]['judul']=$val['title'][$idx];
+                        $ik++;
+                    // }
+
+                    
+                }
+                $jlh+=count($val['href']);
+            }
+            // ecreturnho $jlh;
+            
+            $ss=json_encode($str);
+            $file=$orders->name.'__'.($thn.'_'.$bln).'.txt';
+            Storage::put(
+                $file,
+                $ss
+            );
+            
+            return ($str);
         }
         else
         {

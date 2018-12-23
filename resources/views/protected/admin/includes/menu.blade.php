@@ -35,6 +35,7 @@
                                 <li><a><i class="fa fa-lightbulb-o"></i> News <span class="fa fa-chevron-down"></span></a>
                                     <ul class="nav child_menu" style="display: none">
                                         <li><a href="{{ URL::to('admin/news') }}">List News</a>
+                                        <li><a href="{{ URL::to('admin/resultnew') }}">Result News</a>
                                         </li>
                                     </ul>
                                 </li>

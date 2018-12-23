@@ -54,6 +54,7 @@
             Route::get('/data/{date}/{portal}', 'Admin\NewsController@data');
             Route::get('/get-konten/{id}', 'Admin\NewsController@get_konten');
             Route::post('/proses-berita', 'Admin\NewsController@proses_berita');
+            Route::get('/resultnew', 'Admin\NewsController@get_result');
 
             #crawl tool
             Route::get('/tool', 'Admin\CrawlToolController@index');

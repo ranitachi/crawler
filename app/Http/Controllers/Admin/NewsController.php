@@ -129,4 +129,34 @@ class NewsController extends Controller
         $insert->save();
         return redirect('admin/news')->with('cari','');
     }
+
+    public function get_result(Request $request)
+    {
+        $viewData = $this->newsBusiness->getAll();
+        $order=Order::all();
+        $kategori=Kategori::all();
+        $provinsi=Provinsi::all();
+        if(isset($request->bln))
+        {
+            $thn=$request->thn;
+            $bln=($request->bln <10) ? ('0'.$request->bln) : $request->bln;
+            
+            if(isset($request->key))
+                $data=BeritaResult::where('tanggal_kejadian','like',"%$thn-$bln%")->where('judul','like',"%$request->key%")->with('berita')->with('jnskategori')->with('provinsi')->with('kabupaten')->orderBy('tanggal_kejadian')->paginate(20);
+            else
+                $data=BeritaResult::where('tanggal_kejadian','like',"%$thn-$bln%")->with('berita')->with('jnskategori')->with('provinsi')->with('kabupaten')->orderBy('tanggal_kejadian')->paginate(20);
+        }
+        else
+        {
+            if(isset($request->key))
+                $data=BeritaResult::where('judul','like',"%$request->key%")->with('berita')->with('jnskategori')->with('provinsi')->with('kabupaten')->orderBy('tanggal_kejadian')->paginate(20);
+            else
+                $data=BeritaResult::with('berita')->with('jnskategori')->with('provinsi')->with('kabupaten')->orderBy('tanggal_kejadian')->paginate(20);
+        }
+
+        if ($request->ajax()) {
+            return view('protected.admin.news.result-data', ['data' => $data])->render();  
+        }
+        return view('protected.admin.news.result', compact('viewData','order','kategori','provinsi','data'));
+    }
 }
