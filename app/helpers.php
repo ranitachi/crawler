@@ -25,6 +25,11 @@ function toMonth($m)
 function jumlahhari($bulan,$tahun)
 {
    $jlh=cal_days_in_month(CAL_GREGORIAN, $bulan, $tahun);
-   return $jlh;
+   if($bulan==date('n'))
+      $jlh2=date('d');
+   else
+      $jlh2=$jlh;
+      
+   return $jlh2;
 }
 ?>
