@@ -146,7 +146,7 @@ class CrawlToolController extends Controller
             $jlhhari=jumlahhari($bln,$thn);
             $outputall=array();
             for($xx=1;$xx<=$jlhhari;$xx++)
-            // for($xx=1;$xx<=4;$xx++)
+            // for($xx=1;$xx<=2;$xx++)
             {
                 // $bln=$xx;
                 $tgl=$xx;
@@ -256,7 +256,7 @@ class CrawlToolController extends Controller
                         $bf=explode('/',$bef);
                         $hal=$bf[count($bf)-1];
                         if($hal>1000)
-                            $hal=12;
+                            $hal=15;
                     }
                     // echo $index.'<br>';
                     for($xy=2;$xy<=$hal;$xy++)
@@ -265,13 +265,14 @@ class CrawlToolController extends Controller
                             $pageurl=strtok($url,'?').'/'.$xy.'?date='.$date;
                         else    
                             $pageurl=$link.$page_url.$xy;
-                        // echo $pageurl.'<br>';
+                        // 
                         $crawler2 = Scrapper::request('GET', $pageurl);
                         $response2= Scrapper::getResponse();
                         if($response2->getStatus()==200)
                         {
-                            $data_craw = $crawler2->filter($tag_parent)->each(function($nodeee) use ($data,&$output) 
+                            $data_craw = $crawler2->filter($tag_parent)->each(function($nodeee) use ($data,$pageurl,&$output) 
                             {
+                                // echo $pageurl.'<br>';
                                 $title = $nodeee->extract(array('_text','href','title'));
                                 $output['title'][]=trim(preg_replace('/\t+/', '',$title[0][0]));
                                 $output['href'][]=trim(preg_replace('/\t+/', '',$title[0][1]));
@@ -285,18 +286,18 @@ class CrawlToolController extends Controller
                     foreach($output['href'] as $k => $v)
                     {
 
-                            $isi=$this->get_isi($v,$id_order);
+                            // $isi=$this->get_isi($v,$id_order);
                             
                             $cek['url']=$v;
                             // echo $id_order;
-                            $insert=BeritaCrawler::firstOrCreate($cek);
-                            $insert->portal_id=$id_order;
-                            $insert->url=$v;
-                            $insert->file='';
-                            $insert->isi='-';
-                            $insert->tanggal=($thn.'-'.$bln.'-'.$tgl);
-                            $insert->judul=$output['title'][$k];
-                            $insert->save();
+                            // $insert=BeritaCrawler::firstOrCreate($cek);
+                            // $insert->portal_id=$id_order;
+                            // $insert->url=$v;
+                            // $insert->file='';
+                            // $insert->isi='-';
+                            // $insert->tanggal=($thn.'-'.$bln.'-'.$tgl);
+                            // $insert->judul=$output['title'][$k];
+                            // $insert->save();
                     }
                     
 
@@ -325,7 +326,7 @@ class CrawlToolController extends Controller
                 $jlh+=count($val['href']);
                 $berhasil=1;
             }
-            // ecreturnho $jlh;
+            // // ecreturnho $jlh;
             
             $ss=json_encode($str);
             $file=$orders->name.'__'.($thn.'_'.$bln).'.txt';
@@ -338,12 +339,18 @@ class CrawlToolController extends Controller
             else
                 echo 'Gagal';
                 // return ($str);
+            // return $outputall;
         }
         else
         {
             if(strpos($url,'jpnn')!==false)
             {
                 $date='&d='.$tgl.'&m='.$bln.'&y='.$thn;
+            }
+            elseif(strpos($url,'detik.com')!==false)
+            {
+                // $date=$bln.'/'.$tgl.'/'.$thn;
+                $date=date('m/d/Y',strtotime($thn.'-'.$bln.'-'.$tgl));
             }
             else
             {
@@ -440,6 +447,8 @@ class CrawlToolController extends Controller
                     $bef=strtok($gethal,'?');
                     $bf=explode('/',$bef);
                     $hal=$bf[count($bf)-1];
+                    if($hal>1000)
+                        $hal=15;
                 }
                 // // echo $index.'<br>';
                 for($xi=2;$xi<=$hal;$xi++)
