@@ -313,9 +313,11 @@ class CrawlToolController extends Controller
                     // $insert=BeritaCrawler::where('url',$vl)->first();
                     // if(!$insert)
                     // {
+                        $isi=$this->get_isi($v,$id_order);
                         $str[$ik]['url']=$vl;
                         $str[$ik]['portal_id']=$id_order;
                         $str[$ik]['file']='-';
+                        $str[$ik]['isi']=$isi;
                         $str[$ik]['tanggal']=($thn.'-'.$bln.'-'.$tg);
                         $str[$ik]['judul']=$val['title'][$idx];
                         $ik++;
