@@ -206,6 +206,7 @@
 
         function showmodal(id)
         {
+            $('#loader').show();
             $('#konten-berita').text('');
             $.ajax({
                 url : SITE_ROOT+'get-konten/'+id,
@@ -214,6 +215,7 @@
                     $('#url_berita').val(res.url);
                     $('#id_berita').val(id);
                     $('#judul').val(res.judul);
+                    $('#loader').hide();
                 }
             });
             $('#modal-add').modal('show');
@@ -274,7 +276,12 @@
 						<div class="row">
                             <div class="col-md-8" style="padding:0px 20px 0px 0px;">
                                 <h3>Konten Berita</h3>
-                                <div id="konten-berita" style="border:1px solid #ddd;padding:15px"></div>
+                                <div style="width:100%;text-align:center" id="loader">
+                                    <img src="{{asset('assets/images/loading-bl-blue.gif')}}" style="margin: 0 auto;">
+                                </div>
+                                <div id="konten-berita" style="border:1px solid #ddd;padding:15px">
+                                    
+                                </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">

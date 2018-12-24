@@ -17,6 +17,10 @@ use App\Models\Kabupaten;
 use App\Models\BeritaResult;
 use App\Business\AuthorBusiness;
 use Illuminate\Support\Facades\Redirect;
+use Yangqi\Htmldom\Htmldom;
+use Scrapper;
+use Goutte\Client;
+use GuzzleHttp\Client as GuzzleClient;
 use Sunra\PhpSimple\HtmlDomParser;
 // use Pagination;
 class NewsController extends Controller
@@ -93,7 +97,22 @@ class NewsController extends Controller
         // dd($data);
         return view('protected.admin.news.data', compact('portal_id', 'date', 'data'));
     }
+    public function get_isi($link,$order_id)
+    {
+        $order=Order::find($order_id);
+        $div_conten=$order->tag_body;
 
+        $client = new Client();
+        $crawler_b = $client->request('GET', $link);
+        $response_b = $client->getResponse();
+        $code=$response_b->getStatus();
+        $isi = $response_b->getContent();
+
+        $dom = HtmlDomParser::str_get_html($isi);
+        $konten = $dom->find($div_conten,0);
+
+        return $konten;
+    }
     public function get_konten($id)
     {
         $d=BeritaCrawler::find($id);
@@ -102,11 +121,22 @@ class NewsController extends Controller
         $data['tag_body']=$div_conten=$order->tag_body;
         $data['portal']=$order->name;
         $isi=$d->isi;
+        
+        if($isi !='' && $isi !='-')
+        {    
+            $dom = HtmlDomParser::str_get_html($isi);
+            $konten = trim(preg_replace('/\t+/', '',$dom->find($div_conten,0)->text()));
+            // $konten='--';
+        }
+        else
+        {
+            $getisi=$this->get_isi($d->url,$d->portal_id);
+            $konten=trim(preg_replace('/\t+/', '',$getisi->text()));
+        }
 
-        $dom = HtmlDomParser::str_get_html($isi);
-        $konten = $dom->find($div_conten,0);
         // echo ($konten->text());
-        $data['konten']=($konten->text());
+        
+        $data['konten']=$konten;
         $data['judul']=$d->judul;
         return $data;
     }
