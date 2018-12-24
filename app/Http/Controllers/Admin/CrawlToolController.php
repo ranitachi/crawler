@@ -110,7 +110,29 @@ class CrawlToolController extends Controller
 
     public function simpandatabase($id_order,$bln,$thn)
     {
-        
+        $orders=Order::find($id_order);
+        //'__'.($thn.'_'.$bln).'.txt';
+        $file=$orders->name.'__'.($thn.'_'.$bln).'.txt';
+        $contents = Storage::get($file);
+        $data=json_decode($contents, true);
+        // echo count($data);
+        foreach($data as $k=>$v)
+        {
+            // echo $v['url'].'<br>';
+            $insert=BeritaCrawler::firstOrCreate(['url'=>$v['url']]);
+            $insert->portal_id=$id_order;
+            $insert->url=$v['url'];
+            $insert->file=$v['file'];
+
+            if(isset($v['isi']))
+                $insert->isi=$v['isi'];
+            else
+                $insert->isi='-';
+                
+            $insert->tanggal=$v['tanggal'];
+            $insert->judul=$v['judul'];
+            $insert->save();
+        }
     }
 
     public function simpancrawl($id_order,$tgl,$bln,$thn)
