@@ -107,6 +107,12 @@ class CrawlToolController extends Controller
     /**
      * @param Request $request
      */
+
+    public function simpandatabase($id_order,$bln,$thn)
+    {
+        
+    }
+
     public function simpancrawl($id_order,$tgl,$bln,$thn)
     {
         $orders=Order::find($id_order);
@@ -143,6 +149,10 @@ class CrawlToolController extends Controller
         $behasil=0;
         if($tgl==0)
         {
+            // if($bln==0)
+            // {
+            //     foreach($)
+            // }
             $jlhhari=jumlahhari($bln,$thn);
             $outputall=array();
             for($xx=1;$xx<=$jlhhari;$xx++)

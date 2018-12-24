@@ -85,7 +85,11 @@
                     <div class="col-md-9"></div>
                     <div class="col-md-3">
                         <form class="example">
-                            <input type="text" placeholder="Search.." name="search" id="search" onkeyup="caridata(this.value)">
+                            {{-- <input type="text" placeholder="Search.." name="search" id="search" onkeyup="caridata(this.value)"> --}}
+                            <input type="text" placeholder="Search.." name="search" id="search">
+                            <button type="button" class="btn btn-sm btn-success col-sm-1" onclick="caridata()">
+                                   <i class="fa fa-search"></i>
+                            </button>
                         </form>
                     </div>
                 </div>
@@ -170,8 +174,9 @@
                 alert('Data could not be loaded.');
             });
         }
-        function caridata(val)
+        function caridata()
         {
+            var val = $('#search').val();
             var url=APP_URL+'/admin/news';
             $.ajax({
                 url : url  ,
@@ -226,7 +231,7 @@
         font-size: 17px;
         border: 1px solid grey;
         float: left;
-        width: 100%;
+        width: 70%;
         background: #f1f1f1;
         }
 
