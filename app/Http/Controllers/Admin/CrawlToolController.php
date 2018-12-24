@@ -140,6 +140,7 @@ class CrawlToolController extends Controller
         $depths = $data['depths'];
         $types = $data['types'];
         $setting = $id_order;
+        $behasil=0;
         if($tgl==0)
         {
             $jlhhari=jumlahhari($bln,$thn);
@@ -297,6 +298,7 @@ class CrawlToolController extends Controller
                             $insert->judul=$output['title'][$k];
                             $insert->save();
                     }
+                    
 
                 }
             }
@@ -321,6 +323,7 @@ class CrawlToolController extends Controller
                     
                 }
                 $jlh+=count($val['href']);
+                $berhasil=1;
             }
             // ecreturnho $jlh;
             
@@ -330,8 +333,11 @@ class CrawlToolController extends Controller
                 $file,
                 $ss
             );
-            
-            return ($str);
+            if($berhasil==1)
+                echo 'Berhasil';
+            else
+                echo 'Gagal';
+                // return ($str);
         }
         else
         {
