@@ -196,7 +196,10 @@ class NewsController extends Controller
         $dt=array();
         foreach($data as $k=>$v)
         {
-            $dt[$v->kategori][]=$v;
+            $dt['jumlah_kejadian'][$v->jnskategori->kategori][]=$v;
+            $dt['jumlah_korban']['meninggal'][]=$v->meninggal;
+            $dt['jumlah_korban']['luka'][]=$v->luka;
+            $dt['jumlah_kerusakan']['bangunan_rusak'][]=$v->bangunan_rusak;
         }
         return $dt;
     }
