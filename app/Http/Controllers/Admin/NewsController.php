@@ -189,4 +189,15 @@ class NewsController extends Controller
         }
         return view('protected.admin.news.result', compact('viewData','order','kategori','provinsi','data'));
     }
+
+    public function data_result($tahun)
+    {
+        $data=BeritaResult::where('tanggal_kejadian','like',"%$tahun%")->with('berita')->with('jnskategori')->with('provinsi')->with('kabupaten')->orderBy('tanggal_kejadian')->get();
+        $dt=array();
+        foreach($data as $k=>$v)
+        {
+            $dt[$v->kategori][]=$v;
+        }
+        return $dt;
+    }
 }

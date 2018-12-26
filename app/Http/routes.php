@@ -93,6 +93,7 @@ Route::get('scrapper-js', function() {
 Route::get('simpancrawl/{idorder}/{tgl}/{bln}/{thn}', 'Admin\CrawlToolController@simpancrawl');
 Route::get('simpandatabase/{idorder}/{bln}/{thn}', 'Admin\CrawlToolController@simpandatabase');
 Route::get('getjpnn/{offset}/{tgl}/{bln}/{thn}', 'Admin\CrawlToolController@getjpnn');
+Route::get('data_result/{thn}', 'Admin\NewsController@data_result');
 Route::get('/foo', function()
 {
     $exitCode = Artisan::call('command:name', ['--option' => 'foo']);
