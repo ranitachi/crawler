@@ -20,7 +20,7 @@ class BeritaResult extends Model
     {
         return $this->belongsTo('App\Models\News','id_berita');
     }
-    function provinsi()
+    function getprovinsi()
     {
         return $this->belongsTo('App\Models\Provinsi','provinsi');
     }
