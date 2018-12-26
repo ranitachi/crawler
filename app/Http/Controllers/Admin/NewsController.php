@@ -193,13 +193,17 @@ class NewsController extends Controller
     public function data_result($tahun)
     {
         $data=BeritaResult::where('tanggal_kejadian','like',"%$tahun%")->with('berita')->with('jnskategori')->with('provinsi')->with('kabupaten')->orderBy('tanggal_kejadian')->get();
-        $dt=array();
+        $dt=$total=array();
+        // =0;
         foreach($data as $k=>$v)
         {
             $dt['jumlah_kejadian'][$v->jnskategori->kategori][]=$v;
             $dt['jumlah_korban']['meninggal'][]=$v->meninggal;
             $dt['jumlah_korban']['luka'][]=$v->luka;
             $dt['jumlah_kerusakan']['bangunan_rusak'][]=$v->bangunan_rusak;
+            $dt['provinsi'][$v->provinsi->name][]=$v;
+            $dt['kejadian_provinsi'][$v->provinsi->name][$v->jnskategori->kategori][]=$v;
+            // $total[$v->kategori][]=$
         }
         return $dt;
     }
