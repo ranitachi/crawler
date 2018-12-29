@@ -91,9 +91,9 @@ class NewsController extends Controller
         $date=date('Y-m',strtotime($thn.'-'.$bln));
         // echo $date;
         if($portal_id==-1)
-            $data=BeritaCrawler::where('tanggal','like',"%$date%")->with('portal')->get();
+            $data=BeritaCrawler::select('id','portal_id','judul','url','tanggal','created_at')->where('tanggal','like',"%$date%")->with('portal')->get();
         else
-            $data=BeritaCrawler::where('portal_id',$portal_id)->where('tanggal','like',"%$date%")->with('portal')->get();
+            $data=BeritaCrawler::select('id','portal_id','judul','url','tanggal','created_at')->where('portal_id',$portal_id)->where('tanggal','like',"%$date%")->with('portal')->get();
         // dd($data);
         return view('protected.admin.news.data', compact('portal_id', 'date', 'data'));
     }
@@ -192,7 +192,7 @@ class NewsController extends Controller
 
     public function data_result($tahun)
     {
-        $data=BeritaResult::where('tanggal_kejadian','like',"%$tahun%")->with('berita')->with('jnskategori')->with('getprovinsi')->with('kabupaten')->orderBy('tanggal_kejadian')->get();
+        $data=BeritaResult::select('id','kategori','lokasi','tanggal_kejadian','created_at','updated_at')->where('tanggal_kejadian','like',"%$tahun%")->with('berita')->with('jnskategori')->with('getprovinsi')->with('kabupaten')->orderBy('tanggal_kejadian')->get();
         $dt=$total=array();
         // =0;
         foreach($data as $k=>$v)
