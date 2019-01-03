@@ -201,8 +201,12 @@ class NewsController extends Controller
             $dt['jumlah_korban']['meninggal'][]=$v->meninggal;
             $dt['jumlah_korban']['luka'][]=$v->luka;
             $dt['jumlah_kerusakan']['bangunan_rusak'][]=$v->bangunan_rusak;
-            $dt['provinsi'][$v->getprovinsi->name][]=$v;
-            $dt['kejadian_provinsi'][$v->getprovinsi->name][$v->jnskategori->kategori][]=$v;
+
+            if(isset($v->getprovinsi->name))
+            {
+                $dt['provinsi'][$v->getprovinsi->name][]=$v;
+                $dt['kejadian_provinsi'][$v->getprovinsi->name][$v->jnskategori->kategori][]=$v;
+            }
             // $total[$v->kategori][]=$
         }
         return $dt;
