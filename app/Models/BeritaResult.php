@@ -24,7 +24,7 @@ class BeritaResult extends Model
     {
         return $this->belongsTo('App\Models\Provinsi','provinsi');
     }
-    function kabupaten()
+    function getkabupaten()
     {
         return $this->belongsTo('App\Models\Kabupaten','kabupaten');
     }
