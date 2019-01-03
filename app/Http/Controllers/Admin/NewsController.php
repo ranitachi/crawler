@@ -204,8 +204,8 @@ class NewsController extends Controller
 
             // if(isset($v->getprovinsi->name))
             // {
-                $dt['provinsi'][$v->getprovinsi->name][]=$v;
-                $dt['kejadian_provinsi'][$v->getprovinsi->name][$v->jnskategori->kategori][]=$v;
+                $dt['provinsi'][$v->provinsi][]=$v;
+                $dt['kejadian_provinsi'][$v->provinsi][$v->jnskategori->kategori][]=$v;
             // }
             // $total[$v->kategori][]=$
         }
