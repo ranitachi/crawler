@@ -7,5 +7,5 @@ use Illuminate\Database\Eloquent\Model;
 class Kabupaten extends Model
 {
     protected $table='regencies';
-    protected $fillable=['name'];
+    // protected $fillable=['name'];
 }
