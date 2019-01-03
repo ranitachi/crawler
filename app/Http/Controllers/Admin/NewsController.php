@@ -192,7 +192,7 @@ class NewsController extends Controller
 
     public function data_result($tahun)
     {
-        $data=BeritaResult::select('id','kategori','lokasi','tanggal_kejadian','created_at','updated_at')->where('tanggal_kejadian','like',"%$tahun%")->with('berita')->with('jnskategori')->orderBy('tanggal_kejadian')->get();
+        $data=BeritaResult::select('id','kategori','lokasi','provinsi','tanggal_kejadian','created_at','updated_at')->where('tanggal_kejadian','like',"%$tahun%")->with('berita')->with('jnskategori')->orderBy('tanggal_kejadian')->get();
         $dt=$total=array();
 
         $prop=Provinsi::all();
@@ -209,11 +209,10 @@ class NewsController extends Controller
             $dt['jumlah_korban']['luka'][]=$v->luka;
             $dt['jumlah_kerusakan']['bangunan_rusak'][]=$v->bangunan_rusak;
 
-            if(isset($prp[$v->propinsi]))
+            if(isset($prp[$v->provinsi]))
             {
-
-            $dt['provinsi'][$prp[$v->provinsi]->name][]=$v;
-            $dt['kejadian_provinsi'][$prp[$v->provinsi]->name][$v->jnskategori->kategori][]=$v;
+                $dt['provinsi'][$prp[$v->provinsi]->name][]=$v;
+                $dt['kejadian_provinsi'][$prp[$v->provinsi]->name][$v->jnskategori->kategori][]=$v;
             }
             // $total[$v->kategori][]=$
         }
