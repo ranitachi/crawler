@@ -57,16 +57,23 @@ class NewsController extends Controller
         {
             $thn=$request->thn;
             $bln=($request->bln <10) ? ('0'.$request->bln) : $request->bln;
-            
+            $portal=$request->portal;
+            $date=$thn.'-'.$bln;
             if(isset($request->key))
-                $data=BeritaCrawler::where('tanggal','like',"%$thn-$bln%")->where('judul','like',"%$request->key%")->orderBy('tanggal')->paginate(20);
+            {
+                $data=BeritaCrawler::where('tanggal','like',"%$date%")->where('portal_id',$portal)->where('judul','like',"%$request->key%")->orderBy('tanggal')->paginate(20);
+            }
             else
-                $data=BeritaCrawler::where('tanggal','like',"%$thn-$bln%")->orderBy('tanggal')->paginate(20);
+            {
+                $data=BeritaCrawler::where('tanggal','like',"%$date%")->orderBy('tanggal')->paginate(20);
+            }
         }
         else
         {
             if(isset($request->key))
+            {
                 $data=BeritaCrawler::where('judul','like',"%$request->key%")->orderBy('tanggal')->paginate(20);
+            }
             else
                 $data=BeritaCrawler::orderBy('tanggal')->paginate(20);
         }
@@ -172,16 +179,16 @@ class NewsController extends Controller
             $bln=($request->bln <10) ? ('0'.$request->bln) : $request->bln;
             
             if(isset($request->key))
-                $data=BeritaResult::where('tanggal_kejadian','like',"%$thn-$bln%")->where('judul','like',"%$request->key%")->with('berita')->with('jnskategori')->with('getprovinsi')->with('kabupaten')->orderBy('tanggal_kejadian')->paginate(20);
+                $data=BeritaResult::where('tanggal_kejadian','like',"%$thn-$bln%")->where('judul','like',"%$request->key%")->with('berita')->with('jnskategori')->with('getprovinsi')->with('getkabupaten')->orderBy('tanggal_kejadian')->paginate(20);
             else
-                $data=BeritaResult::where('tanggal_kejadian','like',"%$thn-$bln%")->with('berita')->with('jnskategori')->with('getprovinsi')->with('kabupaten')->orderBy('tanggal_kejadian')->paginate(20);
+                $data=BeritaResult::where('tanggal_kejadian','like',"%$thn-$bln%")->with('berita')->with('jnskategori')->with('getprovinsi')->with('getkabupaten')->orderBy('tanggal_kejadian')->paginate(20);
         }
         else
         {
             if(isset($request->key))
-                $data=BeritaResult::where('judul','like',"%$request->key%")->with('berita')->with('jnskategori')->with('getprovinsi')->with('kabupaten')->orderBy('tanggal_kejadian')->paginate(20);
+                $data=BeritaResult::where('judul','like',"%$request->key%")->with('berita')->with('jnskategori')->with('getprovinsi')->with('getkabupaten')->orderBy('tanggal_kejadian')->paginate(20);
             else
-                $data=BeritaResult::with('berita')->with('jnskategori')->with('getprovinsi')->with('kabupaten')->orderBy('tanggal_kejadian')->paginate(20);
+                $data=BeritaResult::with('berita')->with('jnskategori')->with('getprovinsi')->with('getkabupaten')->orderBy('tanggal_kejadian')->paginate(20);
         }
 
         if ($request->ajax()) {

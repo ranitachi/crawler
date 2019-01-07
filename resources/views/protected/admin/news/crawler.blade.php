@@ -14,7 +14,7 @@
 
                 <div class="clearfix"></div>
                 <div class="row">
-                    <div class="col-md-5">&nbsp;</div>
+                    <div class="col-md-1">&nbsp;</div>
                     <div class="col-md-3">
                         <div class="row">
                             <div class="col-md-12 text-right" style="padding-top:5px">Portal Berita</div>
@@ -62,11 +62,19 @@
                             </div>
                         </div>
                     </div>
+                    <div class="col-md-4">
+                        <div class="row">
+                            <div class="col-md-12 text-right" style="padding-top:5px">Keywords</div>
+                            <div class="col-md-12">
+                                <input type="text" placeholder="Search.." class="form-control" name="search" id="search">
+                            </div>
+                        </div>
+                    </div>
                     <div class="col-md-1">
                         <div class="row">
                             <div class="col-md-12 text-right" style="padding-top:5px">&nbsp;</div>
                             
-                               <button type="button" class="btn btn-md btn-success col-md-12" onclick="cariberita()">
+                               <button type="button" class="btn btn-md btn-success col-md-12" onclick="caridata()">
                                    <i class="fa fa-search"></i> Search
                                 </button>
                             
@@ -81,18 +89,18 @@
             </div>
             @endif
             <div class="x_content">
-                <div class="row">
+                {{-- <div class="row">
                     <div class="col-md-9"></div>
                     <div class="col-md-3">
                         <form class="example">
-                            {{-- <input type="text" placeholder="Search.." name="search" id="search" onkeyup="caridata(this.value)"> --}}
+                            <input type="text" placeholder="Search.." name="search" id="search" onkeyup="caridata(this.value)">
                             <input type="text" placeholder="Search.." name="search" id="search">
                             <button type="button" class="btn btn-sm btn-success col-sm-1" onclick="caridata()">
                                    <i class="fa fa-search"></i>
                             </button>
                         </form>
                     </div>
-                </div>
+                </div> --}}
                 <div id="data" class="text-center" style="position: relative;">
                     @include('protected.admin.news.data')
                 </div>
@@ -177,10 +185,14 @@
         function caridata()
         {
             var val = $('#search').val();
+            var portal=$('#portal').val();
+            var bulan=$('#bulan').val();
+            var tahun=$('#tahun').val();
+
             var url=APP_URL+'/admin/news';
             $.ajax({
                 url : url  ,
-                data : {key:val}
+                data : {key:val,bln:bulan,thn:tahun,portal:portal}
             }).done(function (data) {
                 $('#data').html(data);  
             }).fail(function () {
