@@ -142,14 +142,18 @@
 
                 var bln='&bln='+bulan;
                 var thn='&thn='+tahun;
-                if(search!='')
-                    getArticles(url+'&key='+search);
-                else
-                    getArticles(url);
+                
 
                 if(bulan!=-1)
                 {
                     getArticles(url+'&key='+search+bln+thn);
+                }
+                else
+                {
+                    if(search!='')
+                        getArticles(url+'&key='+search);
+                    else
+                        getArticles(url);
                 }
 
                 // alert(url);
