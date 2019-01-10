@@ -221,6 +221,9 @@ class NewsController extends Controller
             {
                 $dt['provinsi'][$prp[$v->provinsi]->name][]=$v;
                 $dt['kejadian_provinsi'][$prp[$v->provinsi]->name][$v->jnskategori->kategori][]=$v;
+                $dt['provinsi']['meninggal'][]=$v->meninggal;
+                $dt['provinsi']['luka'][]=$v->luka;
+                $dt['provinsi']['bangunan_rusak'][]=$v->bangunan_rusak;
             }
             // $total[$v->kategori][]=$
         }
