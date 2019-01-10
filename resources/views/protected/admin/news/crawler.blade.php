@@ -295,6 +295,8 @@
                                 <div id="konten-berita" style="border:1px solid #ddd;padding:15px">
                                     
                                 </div>
+                                <br>
+                                URL BERITA : <br>
                                 <span id="link_url"></span>
                             </div>
                             <div class="col-md-4">
