@@ -199,7 +199,8 @@ class NewsController extends Controller
 
     public function data_result($tahun)
     {
-        $data=BeritaResult::select('id','kategori','lokasi','provinsi','tanggal_kejadian','created_at','updated_at')->where('tanggal_kejadian','like',"%$tahun%")->with('berita')->with('jnskategori')->orderBy('tanggal_kejadian')->get();
+        // $data=BeritaResult::select('id','kategori','lokasi','provinsi','tanggal_kejadian','created_at','updated_at')->where('tanggal_kejadian','like',"%$tahun%")->with('berita')->with('jnskategori')->orderBy('tanggal_kejadian')->get();
+        $data=BeritaResult::where('tanggal_kejadian','like',"%$tahun%")->with('berita')->with('jnskategori')->orderBy('tanggal_kejadian')->get();
         $dt=$total=array();
 
         $prop=Provinsi::all();
