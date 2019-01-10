@@ -142,11 +142,11 @@
 
                 var bln='&bln='+bulan;
                 var thn='&thn='+tahun;
-                
+                var por='&portal='+portal;
 
                 if(bulan!=-1)
                 {
-                    getArticles(url+'&key='+search+bln+thn);
+                    getArticles(url+'&key='+search+bln+thn+por);
                 }
                 else
                 {
