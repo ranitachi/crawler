@@ -208,6 +208,7 @@
                 success : function(res){
                     $('#konten-berita').html(res.konten);
                     $('#url_berita').val(res.url);
+                    $('#link_url').html('<a href="'+res.url+'" target="_blank">'+res.url+'</a>');
                     $('#id_berita').val(id);
                     $('#judul').val(res.judul);
                 }
@@ -271,6 +272,10 @@
                             <div class="col-md-8" style="padding:0px 20px 0px 0px;">
                                 <h3>Konten Berita</h3>
                                 <div id="konten-berita" style="border:1px solid #ddd;padding:15px"></div>
+                                <div>
+                                    URL Berita :<br>
+                                    <span id="link_url"></span>
+                                </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">

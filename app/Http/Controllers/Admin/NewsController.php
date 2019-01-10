@@ -145,6 +145,7 @@ class NewsController extends Controller
         
         $data['konten']=$konten;
         $data['judul']=$d->judul;
+        // $data['url']=$d->url;
         return $data;
     }
 
@@ -210,7 +211,7 @@ class NewsController extends Controller
             $prp[$p->id]=$p;
         }
 
-        $data=array();
+        $data=$jlhh=array();
         foreach($dd as $dk=>$vk)
         {
             // tanggal_kejadian: "2018-01-03",
