@@ -226,6 +226,7 @@
                     $('#konten-berita').html(res.konten);
                     $('#url_berita').val(res.url);
                     $('#id_berita').val(id);
+                    $('#link_url').html('<a href="'+res.url+'" target="_blank">'+res.url+'</a>');
                     $('#judul').val(res.judul);
                     $('#loader').hide();
                 }
@@ -294,6 +295,7 @@
                                 <div id="konten-berita" style="border:1px solid #ddd;padding:15px">
                                     
                                 </div>
+                                <span id="link_url"></span>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
