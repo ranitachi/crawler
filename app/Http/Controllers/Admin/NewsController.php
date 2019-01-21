@@ -53,6 +53,9 @@ class NewsController extends Controller
         $order=Order::all();
         $kategori=Kategori::all();
         $provinsi=Provinsi::all();
+        $res=BeritaResult::select('id_berita')->get();
+        $idberita=array_unique($res->pluck('id_berita')->toArray());
+        // return $idberita;
         if(isset($request->bln))
         {
             $thn=$request->thn;
@@ -79,11 +82,11 @@ class NewsController extends Controller
         }
 
         if ($request->ajax()) {
-            return view('protected.admin.news.data', ['data' => $data])->render();  
+            return view('protected.admin.news.data', ['data' => $data,'idberita'=>$idberita])->render();  
         }
         // $viewData = BeritaCrawler
         // return view('protected.admin.news.index', compact('viewData'));
-        return view('protected.admin.news.crawler', compact('viewData','order','kategori','provinsi','data'));
+        return view('protected.admin.news.crawler', compact('viewData','order','kategori','provinsi','data','idberita'));
     }
 
     public function destroy(Request $request)
@@ -163,6 +166,7 @@ class NewsController extends Controller
         $insert->luka = $request->korban_luka;
         $insert->bangunan_rusak = $request->bangunan_rusak;
         $insert->url_berita = $request->url_berita;
+        $insert->jlh_pengungsi = $request->jlh_pengungsi;
         $insert->judul = $request->judul;
         $insert->save();
         return redirect('admin/news')->with('cari','');

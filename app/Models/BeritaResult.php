@@ -9,7 +9,7 @@ class BeritaResult extends Model
 {
     use SoftDeletes;
     protected $table='berita_result';
-    protected $fillable=['id_berita','kategori','provinsi','kabupaten','lokasi','tanggal_kejadian','meninggal','luka','bangunan_rusak','url_berita','judul'];
+    protected $fillable=['id_berita','kategori','provinsi','kabupaten','jlh_pengungsi','lokasi','tanggal_kejadian','meninggal','luka','bangunan_rusak','url_berita','judul'];
     protected $hidden=['created_at','updated_at','deleted_at'];
 
     function jnskategori()

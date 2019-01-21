@@ -354,23 +354,29 @@
                                     
                                 </div>
                                 <div class="row">
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                         <div class="form-group">
-                                            <label>Korban Meninggal</label>
+                                            <label>Jumlah<br>Pengungsi</label>
+                                            <input type="text" class="form-control" name="jlh_pengungsi" placeholder="Jlh Pengungsi" value="0">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label>Korban<br>Meninggal</label>
                                             <input type="text" class="form-control" name="korban_meninggal" placeholder="Jumlah" value="0">
                                         </div>
                                     </div>
                                     
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                         <div class="form-group">
-                                            <label>Korban Luka</label>
+                                            <label>Korban<br>Luka</label>
                                                 <input type="text" placeholder="Jumlah" class="form-control" name="korban_luka" value="0">
                                             </div>
                                         </div>
                                     
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                         <div class="form-group">
-                                            <label>Bangunan Rusak</label>
+                                            <label>Bangunan<br>Rusak</label>
                                                 <input type="text" placeholder="Jumlah" class="form-control" name="bangunan_rusak" value="0">
                                             </div>
                                         </div>

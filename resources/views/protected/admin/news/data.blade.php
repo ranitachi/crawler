@@ -16,6 +16,8 @@
             $no=((isset($_GET['page']) ? $_GET['page'] : 1) * 20) -19;
         ?>
         @foreach ($data as $key=> $item)
+            @if (!in_array($item->id,$idberita))
+            
             <tr class="even pointer">
                 <td class="text-center">{{$no}}</td>
                 <td class="">{{$item->portal->name}}</td>
@@ -29,6 +31,7 @@
             <?php
                 $no++;
             ?>
+            @endif
         @endforeach
     </tbody>
 </table>
