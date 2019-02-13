@@ -205,7 +205,7 @@ class NewsController extends Controller
     public function data_result($tahun)
     {
         // $data=BeritaResult::select('id','kategori','lokasi','provinsi','tanggal_kejadian','created_at','updated_at')->where('tanggal_kejadian','like',"%$tahun%")->with('berita')->with('jnskategori')->orderBy('tanggal_kejadian')->get();
-        $dd=BeritaResult::where('tanggal_kejadian','like',"%$tahun%")->with('berita')->with('jnskategori')->orderBy('tanggal_kejadian')->get();
+        $dd=BeritaResult::where('tanggal_kejadian','like',"%$tahun%")->with('berita')->with('jnskategori')->orderBy('tanggal_kejadian')->orderBy('meninggal')->orderBy('luka')->orderBy('bangunan_rusak')->orderBy('jlh_pengungsi')->get();
         $dt=$total=array();
 
         $prop=Provinsi::all();
@@ -216,6 +216,7 @@ class NewsController extends Controller
         }
 
         $data=$jlhh=array();
+        $meninggal=$luka=$rusak=$pengungsi=array();
         foreach($dd as $dk=>$vk)
         {
             // tanggal_kejadian: "2018-01-03",
@@ -225,14 +226,22 @@ class NewsController extends Controller
             // kabupaten: 6472,
             $idx=$vk->tanggal_kejadian.'__'.$vk->kategori.'__'.$vk->provinsi.'__'.$vk->kabupaten;
             $data[$idx]=$vk;
+            $meninggal[$idx][]=$vk->meninggal;
+            $luka[$idx][]=$vk->luka;
+            $rusak[$idx][]=$vk->bangunan_rusak;
+            $pengungsi[$idx][]=$vk->jlh_pengungsi;
         }
         // =0;
         foreach($data as $k=>$v)
         {
             $dt['jumlah_kejadian'][$v->jnskategori->kategori][]=$v;
-            $dt['jumlah_korban']['meninggal'][]=$v->meninggal;
-            $dt['jumlah_korban']['luka'][]=$v->luka;
-            $dt['jumlah_kerusakan']['bangunan_rusak'][]=$v->bangunan_rusak;
+            // $dt['jumlah_korban']['meninggal'][]=$v->meninggal;
+            // $dt['jumlah_korban']['luka'][]=$v->luka;
+            // $dt['jumlah_kerusakan']['bangunan_rusak'][]=$v->bangunan_rusak;
+            $dt['jumlah_korban']['meninggal'][]=max($meninggal[$k]);
+            $dt['jumlah_korban']['luka'][]=max($luka[$k]);
+            $dt['jumlah_kerusakan']['bangunan_rusak'][]=max($rusak[$k]);
+            $dt['jumlah_korban']['jumlah_pengungsi'][]=max($pengungsi[$k]);
 
             if(isset($prp[$v->provinsi]))
             {
