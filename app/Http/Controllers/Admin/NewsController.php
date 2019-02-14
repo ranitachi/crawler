@@ -234,22 +234,25 @@ class NewsController extends Controller
         // =0;
         foreach($data as $k=>$v)
         {
-            $dt['jumlah_kejadian'][$v->jnskategori->kategori][]=$v;
-            // $dt['jumlah_korban']['meninggal'][]=$v->meninggal;
-            // $dt['jumlah_korban']['luka'][]=$v->luka;
-            // $dt['jumlah_kerusakan']['bangunan_rusak'][]=$v->bangunan_rusak;
-            $dt['jumlah_korban']['meninggal'][]=max($meninggal[$k]);
-            $dt['jumlah_korban']['luka'][]=max($luka[$k]);
-            $dt['jumlah_kerusakan']['bangunan_rusak'][]=max($rusak[$k]);
-            $dt['jumlah_korban']['jumlah_pengungsi'][]=max($pengungsi[$k]);
-
-            if(isset($prp[$v->provinsi]))
+            if(isset($v->jnskategori->kategori))
             {
-                $dt['provinsi'][$prp[$v->provinsi]->name][]=$v;
-                $dt['kejadian_provinsi'][$prp[$v->provinsi]->name][$v->jnskategori->kategori][]=$v;
-                $dt['provinsi'][$prp[$v->provinsi]->name]['meninggal'][]=$v->meninggal;
-                $dt['provinsi'][$prp[$v->provinsi]->name]['luka'][]=$v->luka;
-                $dt['provinsi'][$prp[$v->provinsi]->name]['bangunan_rusak'][]=$v->bangunan_rusak;
+                $dt['jumlah_kejadian'][$v->jnskategori->kategori][]=$v;
+                // $dt['jumlah_korban']['meninggal'][]=$v->meninggal;
+                // $dt['jumlah_korban']['luka'][]=$v->luka;
+                // $dt['jumlah_kerusakan']['bangunan_rusak'][]=$v->bangunan_rusak;
+                $dt['jumlah_korban']['meninggal'][]=max($meninggal[$k]);
+                $dt['jumlah_korban']['luka'][]=max($luka[$k]);
+                $dt['jumlah_kerusakan']['bangunan_rusak'][]=max($rusak[$k]);
+                $dt['jumlah_korban']['jumlah_pengungsi'][]=max($pengungsi[$k]);
+
+                if(isset($prp[$v->provinsi]))
+                {
+                    $dt['provinsi'][$prp[$v->provinsi]->name][]=$v;
+                    $dt['kejadian_provinsi'][$prp[$v->provinsi]->name][$v->jnskategori->kategori][]=$v;
+                    $dt['provinsi'][$prp[$v->provinsi]->name]['meninggal'][]=$v->meninggal;
+                    $dt['provinsi'][$prp[$v->provinsi]->name]['luka'][]=$v->luka;
+                    $dt['provinsi'][$prp[$v->provinsi]->name]['bangunan_rusak'][]=$v->bangunan_rusak;
+                }
             }
             // $total[$v->kategori][]=$
         }
