@@ -249,9 +249,13 @@ class NewsController extends Controller
                 {
                     $dt['provinsi'][$prp[$v->provinsi]->name][]=$v;
                     $dt['kejadian_provinsi'][$prp[$v->provinsi]->name][$v->jnskategori->kategori][]=$v;
+                    // $dt['provinsi'][$prp[$v->provinsi]->name]['meninggal'][]=$v->meninggal;
+                    // $dt['provinsi'][$prp[$v->provinsi]->name]['luka'][]=$v->luka;
+                    // $dt['provinsi'][$prp[$v->provinsi]->name]['bangunan_rusak'][]=$v->bangunan_rusak;
                     $dt['provinsi'][$prp[$v->provinsi]->name]['meninggal'][]=$v->meninggal;
                     $dt['provinsi'][$prp[$v->provinsi]->name]['luka'][]=$v->luka;
                     $dt['provinsi'][$prp[$v->provinsi]->name]['bangunan_rusak'][]=$v->bangunan_rusak;
+                    $dt['provinsi'][$prp[$v->provinsi]->name]['jlh_pengungsi'][]=$v->jlh_pengungsi;
                 }
             }
             // $total[$v->kategori][]=$
