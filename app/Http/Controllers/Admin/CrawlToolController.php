@@ -124,9 +124,9 @@ class CrawlToolController extends Controller
             $insert->url=$v['url'];
             $insert->file=$v['file'];
 
-            if(isset($v['isi']))
-                $insert->isi=$v['isi'];
-            else
+            // if(isset($v['isi']))
+            //     $insert->isi=$v['isi'];
+            // else
                 $insert->isi='-';
                 
             $insert->tanggal=$v['tanggal'];
