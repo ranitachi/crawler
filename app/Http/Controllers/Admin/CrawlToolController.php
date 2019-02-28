@@ -557,13 +557,6 @@ class CrawlToolController extends Controller
             {
                 
                 $tgl=$xx;
-                // if(date('n')==$bln && date('d')<$xx)
-                // {
-                //     // dd(date('d')<$xx);
-                //     echo $tgl.'-';
-                //     break;
-                // }
-                
                 
                 if(strpos($url,'jpnn')!==false)
                 {
@@ -736,10 +729,10 @@ class CrawlToolController extends Controller
                                     $crawler_page = Scrapper::request('GET', $page_url.$ix);
                                 }
                                 //echo $tag_parent;
-                                $data_craw = $crawler_page->filter($tag_parent)->each(function($node) use ($request,$tgl,$page_url) {
+                                $data_craw = $crawler_page->filter($tag_parent)->each(function($node) use ($request,$tgl,$page_url,$id_order) {
                                     $title = $node->extract(array('_text','href','title'));
                                     
-
+                                    
                                     if(strpos($page_url,'tempo')!==false)
                                     {
                                         $node->filter('h2.title')->each(function ($nd) use (&$title_) {
@@ -770,7 +763,8 @@ class CrawlToolController extends Controller
                                             // if($code==200)
                                             // {
                                                 echo $tgl.'-<br>';
-                                                $isi=$this->get_isi($link_berita,$id_order);
+                                                //$isi=$this->get_isi($link_berita,$id_order);
+                                                $isi='-';
                                                 $insert=new BeritaCrawler;
                                                 $insert->portal_id=$request->setting;
                                                 $insert->url=$link_berita;
